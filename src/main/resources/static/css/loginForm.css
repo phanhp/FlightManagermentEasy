@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+}
+html, body{
+    background-image: url("https://images.pexels.com/photos/53594/blue-clouds-day-fluffy-53594.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1") ;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.container{
+    display: flex;
+    justify-content: center;
+    align-content: center;
+}
+.card{
+    border-radius: 6px;
+}
+.card-header{
+    background-color: transparent;
+}
+.sign-in{
+    margin-top: 100px;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    padding: 80px;
+    border-radius: 5px;
+    background-color: transparent;
+}
+.title{
+    margin-bottom: 10px;
+    font-weight: bolder;
+    font-size: 30px;
+    color: darkblue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.element{
+    margin-bottom: 15px;
+}
+.label-title{
+    font-size: 20px;
+    font-weight: bold;
+    color: RGB(155, 35, 53);
+}
+.forget-account{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+    color: black;
+}
+.error{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: red;
+    margin-bottom: 5px;
+}
+.submit{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.submit a{
+    text-decoration: none;
+    color: white;
+}
+.btn-login{
+    height: 40px;
+    width: 120px;
+    display: flex;
+    background-color: #0069d9;
+    justify-content: center;
+    align-items: center;
+}
+.btn-login:hover{
+    color: lightyellow;
+    background-color: darkblue;
+    font-size: 20px;
+    font-weight: bold;
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Promotion Tickets</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{path/to/font-awesome/css/font-awesome.min.css}">
+    <link th:href="@{/css/adminViewPromotionTicket.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <td>Id</td>
+            <td>Code</td>
+            <td>Value</td>
+            <td>Expired Date</td>
+            <td>Available</td>
+            <td>Update</td>
+            <td>Delete</td>
+        </thead>
+        <tbody th:each="promotionTicket : ${promotionTicketList}">
+            <tr>
+                <td th:text="${promotionTicket.id}"></td>
+                <td th:text="${promotionTicket.code}"></td>
+                <td th:text="${promotionTicket.value}"></td>
+                <td th:text="${promotionTicket.expiredDate}"></td>
+                <td th:text="${promotionTicket.available}"></td>
+                <td><a th:href="@{}">Update</a></td>
+                <td><a th:href="@{}">Delete</a></td>
+            </tr>
+
+        </tbody>
+
+    </table>
+</div>
+</body>
+</html>

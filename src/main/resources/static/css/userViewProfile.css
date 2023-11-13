@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+}
+.main-body{
+    margin-top: 10px;
+}
+.title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0857ff;
+    margin-top: 10px;
+}
+.card-box{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px darkgrey solid;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+.form-title{
+    margin-top: 5px;
+    color: darkgrey;
+    font-size: 25px;
+    font-weight: bold;
+}
+.error{
+    color: red;
+    margin-top: 6px;
+    font-weight: normal;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.success{
+    color: blue;
+    margin-top: 6px;
+    font-weight: normal;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.element{
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.profile-image input[type="file"]{
+    display: none;
+}
+.custom-profile-image{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: 2px solid grey;
+}
+.custom-profile-image-label{
+    cursor: pointer;
+}
+.image-card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.image-card img{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-top: 10px;
+    padding: 5px;
+    border: 2px darkblue solid;
+}
+.upload-image{
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.upload-image-btn{
+    width: 150px;
+    height: 30px;
+    border-radius: 6px;
+    background-color: #b1dfbb;
+}
+.upload-image-btn:hover{
+    font-weight: bold;
+}
+.profile-information{
+    justify-content: center;
+    align-items: center;
+}
+.element{
+    width: 80%;
+    margin-bottom: 10px;
+    padding: 10px;
+    margin-left: 10px;
+    height: 50px;
+    border-bottom: grey solid 2px;
+}
+.box{
+    width: 100%;
+}
+.element h6{
+    color: darkblue;
+    font-weight: bold;
+    vertical-align: center;
+}
+.element p{
+    font-size: 16px;
+    vertical-align: center;
+}
+.profile-link{
+    color: #da06ce;
+    margin-left: 15px;
+}
+.profile-link:hover{
+    color: #a20696;
+    font-weight: bold;
+}

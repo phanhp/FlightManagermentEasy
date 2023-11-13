@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Flight</title>
+    <script th:src="@{https://code.jquery.com/jquery-3.6.0.min.js}"></script>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css}">
+    <link th:href="@{/css/adminCreateFlight.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<div class="container">
+    <div class="title card-box"><h1 class="mt-4" th:text="${title}"></h1></div>
+    <form th:action="${action}" method="post" id="flightCRUDForm" th:object="${flight}">
+        <!--        Flight Time-->
+        <div class="card-box">
+            <h5 class="form-title">Flight Time</h5>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="option" for="departureTime">
+                        <h6>Departure Time</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="datetime-local"
+                           id="departureTime"
+                           th:value="${flight.departureTime}"
+                           th:field="*{departureTime}"
+                           name="departureTime"
+                           required>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="option" for="arrivalTime">
+                        <h6>Arrival Time</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="datetime-local"
+                           id="arrivalTime"
+                           th:value="${flight.arrivalTime}"
+                           th:field="*{arrivalTime}"
+                           name="arrivalTime"
+                           required>
+                </div>
+            </div>
+        </div>
+        <!--        Departure Location-->
+        <div class="card-box">
+            <h5 class="form-title">Departure Location</h5>
+            <div class="row">
+                <div class="col-lg-4 field-not-require">
+                    <label for="departureCountry">Departure Country</label>
+                    <select class="form-control"
+                            id="departureCountry"
+                            name="departureCountryId">
+                        <option class="auto-option"
+                                th:value="0"
+                                selected>Choose Departure Country
+                        </option>
+                        <th:block th:each="country : ${countryList}">
+                            <option th:value="${country.id}"
+                                    th:text="${country.name}"
+                                    th:selected="${country.id == departureCountryId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+                <div class="col-lg-4 field-not-require">
+                    <label for="departureCity">Departure City</label>
+                    <select class="form-control"
+                            id="departureCity"
+                            name="departureCityId">
+                        <option th:value="0"
+                                selected>Choose Departure City
+                        </option>
+                        <th:block th:each="city : ${cityList}">
+                            <option class="auto-option"
+                                    th:value="${city.id}"
+                                    th:text="${city.name}"
+                                    th:selected="${city.id == departureCityId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+                <div class="col-lg-4 field-not-require">
+                    <label for="departureAirport">Departure Airport</label>
+                    <select class="form-control"
+                            id="departureAirport"
+                            name="departureAirportId">
+                        <option class="auto-option"
+                                th:value="0"
+                                selected>Choose Departure Airport
+                        </option>
+                        <th:block th:each="airport : ${airportList}">
+                            <option th:value="${airport.id}"
+                                    th:text="${airport.name}"
+                                    th:selected="${airport.id == departureAirportId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="option" for="departureRoute">
+                        <h6>Departure Route</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <select class="form-control require-field"
+                            id="departureRoute"
+                            name="departureRouteId"
+                            th:field="*{departureRouteId}"
+                            required>
+                        <option class="auto-option"
+                                th:value="0"
+                                selected>Choose Departure Route
+                        </option>
+                        <th:block th:each="route : ${routeList}">
+                            <option th:value="${route.id}"
+                                    th:text="${route.name}"
+                                    th:selected="${route.id == flight.departureRouteId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!--        Arrival Location-->
+        <div class="card-box">
+            <h5 class="form-title">Arrival Location</h5>
+            <div class="row">
+                <div class="col-lg-4 field-not-require">
+                    <label for="arrivalCountry">Arrival Country</label>
+                    <select class="form-control"
+                            id="arrivalCountry"
+                            name="arrivalCountryId">
+                        <option class="auto-option"
+                                th:value="0"
+                                selected>Choose Arrival Country
+                        </option>
+                        <th:block th:each="country : ${countryList}">
+                            <option th:value="${country.id}"
+                                    th:text="${country.name}"
+                                    th:selected="${country.id == arrivalCountryId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+                <div class="col-lg-4 field-not-require">
+                    <label for="arrivalCity">Arrival City</label>
+                    <select class="form-control"
+                            id="arrivalCity"
+                            name="arrivalCityId">
+                        <option class="auto-option"
+                                th:value="0"
+                                selected>Choose Arrival City
+                        </option>
+                        <th:block th:each="city : ${cityList}">
+                            <option th:value="${city.id}"
+                                    th:text="${city.name}"
+                                    th:selected="${city.id == arrivalCityId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+                <div class="col-lg-4 field-not-require">
+                    <label for="arrivalAirport">Arrival Airport</label>
+                    <select class="form-control"
+                            id="arrivalAirport"
+                            name="arrivalAirportId">
+                        <option class="auto-option"
+                                th:value="0"
+                                selected>Choose Arrival Airport
+                        </option>
+                        <th:block th:each="airport : ${airportList}">
+                            <option th:value="${airport.id}"
+                                    th:text="${airport.name}"
+                                    th:selected="${airport.id == arrivalAirportId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="option" for="arrivalRoute">
+                        <h6>Arrival Route</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <select class="form-control"
+                            id="arrivalRoute"
+                            name="arrivalRouteId"
+                            th:field="*{arrivalRouteId}"
+                            required>
+                        <option class="auto-option"
+                                th:value="0"
+                                selected>Choose Arrival Route
+                        </option>
+                        <th:block th:each="route : ${routeList}">
+                            <option class="select-option"
+                                    th:value="${route.id}"
+                                    th:text="${route.name}"
+                                    th:selected="${route.id == flight.arrivalRouteId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+        </div>
+<!--        Aircraft-->
+        <div class="card-box">
+            <h5 class="form-title">Aircraft</h5>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="option" for="aircraft">
+                        <h6>Aircraft</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <select class="form-control require-field"
+                            id="aircraft"
+                            name="aircraftId"
+                            th:field="*{aircraftId}"
+                            required>
+                        <option th:value="0"
+                                selected>Choose Aircraft
+                        </option>
+                        <th:block th:each="aircraft : ${aircraftList}">
+                            <option th:value="${aircraft.id}"
+                                    th:text="${aircraft.name}"
+                                    th:selected="${aircraft.id == flight.aircraftId}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-box">
+            <div class="form-title">Price</div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="option" for="economyPrice">
+                        <h6>Economy Price</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control require-field"
+                           type="number"
+                           step="0.5"
+                           id="economyPrice"
+                           th:value="${flight.ecnonomyPrice}"
+                           th:field="*{ecnonomyPrice}"
+                           name="economyPrice"
+                           required>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="option" for="businessPrice">
+                        <h6>Business Price</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control require-field"
+                           type="number"
+                           step="0.5"
+                           id="businessPrice"
+                           th:value="${flight.businessPrice}"
+                           th:field="*{businessPrice}"
+                           name="businessPrice"
+                           required>
+                </div>
+            </div>
+        </div>
+        <div class="element submit-button">
+            <button class="btn btn-success submit"
+                    type="submit"
+                    th:text="${submit}"></button>
+        </div>
+    </form>
+</div>
+<script th:src="@{/js/adminCreatFlight.js}" type="text/javascript"></script>
+</body>
+</html>

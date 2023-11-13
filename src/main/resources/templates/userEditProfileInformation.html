@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script th:src="@{https://code.jquery.com/jquery-3.6.0.min.js}"></script>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/css/userEditProfile.css}">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<div class="container">
+    <div class="title card-box"><h1 class="mt-4" th:text="${title}"></h1></div>
+    <form th:action="@{/user/update-profile}" method="post" enctype="multipart/form-data">
+        <input type="text"
+               th:value="${profileUrl}"
+               name="profileUrl"
+               readonly
+               hidden="hidden">
+        <input type="text"
+               th:value="${successUrl}"
+               name="successUrl"
+               readonly
+               hidden="hidden">
+        <input type="text"
+               th:value="${updateSuccess}"
+               name="updateSuccess"
+               readonly
+               hidden="hidden">
+        <input class="form-control"
+               type="password"
+               id="oldPasswordHide"
+               th:value="${oldPassword}"
+               name="oldPasswordHide"
+               hidden="hidden"
+               readonly
+               required>
+        <input type="password" hidden="hidden">
+<!--        image-->
+        <div class="card-box">
+            <h5 class="form-title">Profile Image</h5>
+            <div class="custom-profile-image">
+                <label class="custom-profile-image-label" for="profile-image">
+                    <div class="image-card" id="profile-image-part1" th:if="${accountImg != null}">
+                        <img class="image" th:src="@{*{'data:image/png;base64,'}+${accountImg}}" alt="image">
+                    </div>
+                    <div class="image-card" id="profile-image-part2" th:if="${accountImg == null}">
+                        <img class="image" th:src="@{/images/blankUser.jpg}" alt="image">
+                    </div>
+                </label>
+            </div>
+            <div class="profile-image">
+                <input id="profile-image"
+                       name="profileImage"
+                       type="file">
+            </div>
+            <div class="error" th:text="${accountImgError}"></div>
+            <div class="account-name">
+                <p th:text="${account.accountName}"></p>
+            </div>
+        </div>
+        <div class="card-box">
+            <h5 class="form-title">User Detail</h5>
+<!--            fullname-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="fullname">
+                        <h6>Full Name</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Full Name"
+                           id="fullname"
+                           th:value="${account.name}"
+                           name="name"
+                           required>
+                </div>
+            </div>
+            <div class="error" th:text="${nameError}"></div>
+<!--            email-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="email">
+                        <h6>Email</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="email"
+                           placeholder="Email"
+                           id="email"
+                           th:value="${account.email}"
+                           name="email"
+                           required>
+                </div>
+            </div>
+            <div class="error" th:text="${emailError}"></div>
+<!--            identity-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="identity">
+                        <h6>Identity</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Identity"
+                           id="identity"
+                           th:value="${account.identity}"
+                           name="identity"
+                           required>
+                </div>
+            </div>
+            <div class="error" th:text="${identityError}"></div>
+        </div>
+        <div class="card-box">
+            <h5 class="form-title">User Information</h5>
+<!--            phone-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="phone">
+                        <h6>Phone</h6>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Phone"
+                           id="phone"
+                           th:value="${account.phone}"
+                           name="phone">
+                </div>
+            </div>
+<!--            address-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="address">
+                        <h6>Address</h6>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="text"
+                           placeholder="Address"
+                           id="address"
+                           th:value="${account.address}"
+                           name="address">
+                </div>
+            </div>
+<!--            birthday-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="dob">
+                        <h6>BirthDay</h6>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="date"
+                           placeholder="BirthDay"
+                           id="dob"
+                           th:value="${account.dob}"
+                           name="dob">
+                </div>
+            </div>
+<!--            gender-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="gender">
+                        <h6>Gender</h6>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <select class="form-control"
+                            id="gender"
+                            name="gender">
+                        <th:block th:each="gender : ${genderList}">
+                            <option th:value="${gender}"
+                                    th:text="${gender}"
+                                    th:selected="${gender == account.gender}">
+                            </option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-box">
+            <h5 class="form-title">Confirm Password To Update</h5>
+<!--            confirm password-->
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="oldPassword">
+                        <h6>Password</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="password"
+                           placeholder="Password"
+                           id="oldPassword"
+                           name="oldPassword"
+                           th:value="${emptyString}"
+                           required>
+                </div>
+            </div>
+            <div class="error" th:text="${oldPasswordError}"></div>
+        </div>
+        <div class="element submit row">
+            <div class="submit-box">
+                <button class="btn btn-success submit-btn"
+                        type="submit">Update Information
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<script th:src="@{/js/signupForm.js}" type="text/javascript"></script>
+</body>
+</html>

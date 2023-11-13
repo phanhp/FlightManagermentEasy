@@ -1,0 +1,46 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    color: purple;
+}
+.error{
+    color: red;
+    background-color: hotpink;
+}
+.custom-btn-buy{
+    margin-bottom: 10px;
+}
+.btn-buy{
+    width: 100px;
+}
+.btn-buy a{
+    color: white;
+}
+.flight-list{
+    margin-top: 10px;
+}
+.my-option-name{
+    margin-right: 8px;
+}
+.city{
+    color: black;
+}
+.time {
+    color: purple;
+}
+.price{
+    color: blue;
+}
+.seat{
+    color: #1FA9D6;
+}
+.custom-card-box{
+    background-color: #bee5eb;
+    border-radius: 10px;
+    border: #1FA9D6 2px solid;
+    margin-bottom: 5px;
+}
+.card-box{
+    margin-top: 5px;
+    margin-left: 20px;
+}

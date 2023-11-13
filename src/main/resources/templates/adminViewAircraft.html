@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Aircraft Admin</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/index.css}" rel="stylesheet" type="text/css">
+    <script th:src="@{https://code.jquery.com/jquery-3.6.0.min.js}"></script>
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<div class="container">
+    <table class="table-striped table">
+        <thead>
+            <td>ID</td>
+            <td>Name</td>
+            <td>Airline Name</td>
+            <td>Business Seat Amounts</td>
+            <td>Economy Seat Amounts</td>
+            <td>Update</td>
+            <td>Delete</td>
+        </thead>
+        <tbody th:each="aicraft : ${aircraftList}">
+            <tr>
+                <td th:text="${aicraft.id}"></td>
+                <td th:text="${aicraft.name}"></td>
+                <td th:text="${aicraft.airlineName}"></td>
+                <td th:text="${aicraft.businessSeatsAmount}"></td>
+                <td th:text="${aicraft.economySeatsAmount}"></td>
+                <td>Update</td>
+                <td><a th:href="@{/admin/delete-aircraft/{aircraftId} (aircraftId=${aicraft.getId()})}">Delete</a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="container">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item"><a class="page-link" th:href="@{/admin/view-aircraft-page(page=0)}">First</a></li>
+
+            <li class="page-item">
+                <a class="page-link" th:href="@{/admin/view-aircraft-page(page=${previousPage})}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous Page</span>
+                </a>
+            </li>
+
+            <li class="page-item">
+                <a class="page-link" th:href="@{/admin/view-aircraft-page(page=${nextPage})}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next Page</span>
+                </a>
+            </li>
+
+            <li class="page-item"><a class="page-link" th:href="@{/admin/view-aircraft-page(page=${totalPage}-1)}">Last</a></li>
+        </ul>
+    </nav>
+</div>
+<script th:src="@{js/currentURL}" type="text/javascript"></script>
+</body>
+</html>

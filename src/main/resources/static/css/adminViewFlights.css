@@ -1,0 +1,190 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    color: purple;
+}
+
+.error {
+    color: red;
+    background-color: hotpink;
+}
+
+.element{
+    margin-left: 20px;
+}
+
+.search-box {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 2px;
+    width: 100%;
+}
+
+.btn-search {
+    border: none;
+    background-color: blue;
+    color: white;
+    width: 120px;
+    margin-top: 30px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-search:hover {
+    background-color: #005cbf;
+    color: lightyellow;
+    font-size: 20px;
+    font-weight: bolder;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.result-search{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: darkgreen;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.flight-list {
+    margin-top: 10px;
+}
+
+.my-option-name {
+    margin-right: 8px;
+}
+
+.city {
+    color: RGB(149, 82, 81);
+}
+
+.time-box {
+}
+
+.time {
+    color: RGB(0, 155, 119);
+}
+
+.price {
+    color: RGB(221, 65, 36);
+}
+
+.seat {
+    color: #1FA9D6;
+}
+
+.custom-card-box {
+    background-color: white;
+    border-radius: 10px;
+    border: #1FA9D6 2px solid;
+    margin-bottom: 10px;
+}
+
+.custom-card-box:hover {
+    background-color: #bee5eb;
+}
+
+.card-box {
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+.btn-update {
+    margin-bottom: 20px;
+    border: none;
+    width: 120px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-update a {
+    text-decoration: none;
+    color: white;
+}
+
+.btn-update:hover {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1c7430;
+}
+
+.btn-update:hover a {
+    font-size: 20px;
+    font-weight: bold;
+    color: lightgoldenrodyellow;
+}
+
+.btn-delete {
+    margin-bottom: 20px;
+    border: none;
+    width: 120px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-delete a {
+    text-decoration: none;
+    color: antiquewhite;
+}
+
+.btn-delete:hover {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ff1d00;
+}
+
+.btn-delete:hover a {
+    font-size: 20px;
+    font-weight: bold;
+    color: lightgoldenrodyellow;
+}
+
+.pagination-box{
+    margin-top: 25px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.btn-page-control{
+    margin: 1px;
+    padding: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: #9fcdff;
+    border-radius: 5px;
+    color: darkblue;
+}
+.btn-page-control-submit{
+    margin: 2px;
+    padding: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: #94db8a;
+    border-radius: 5px;
+    color: red;
+}
+.btn-page-control:hover, .btn-page-control-submit:hover{
+    font-weight: bold;
+}
+.page-form select{
+    margin: 2px;
+    padding: 5px;
+    height: 35px;
+    width: 70px;
+    border-radius: 5px;
+}

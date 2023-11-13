@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/userCartForm.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments :: header"></header>
+<div class="container">
+    <div th:each="ticketListEntry : ${ticketListPage}">
+        <div class="card">
+            <div th:with="flightId=${bookingSession.getFlightIdFromTicketList(ticketListEntry)}">
+                <div th:with="flight=${flightService.findFlightDTOById(flightId)}">
+                    <div class="container card-box">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <h5 class="my-option-name city">Departure City:</h5>
+                                    <h5 class="city" th:text="${flight.departureCity}"></h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <h5 class="my-option-name city">Arrival City:</h5>
+                                    <h5 class="city" th:text="${flight.arrivalCity}"></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <h5 class="my-option-name time">Departure Time:</h5>
+                                    <h5 class="time"
+                                        th:text="${#temporals.format(#temporals.createDateTime(flight.departureTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <h5 class="my-option-name time">Arrival Time:</h5>
+                                    <h5 class="time"
+                                        th:text="${#temporals.format(#temporals.createDateTime(flight.arrivalTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <h5 class="my-option-name price">Economy Price: </h5>
+                                    <h5 class="price" th:text="${flight.ecnonomyPrice}+'$'"></h5>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <h5 class="my-option-name price">Business Price: </h5>
+                                    <h5 class="price" th:text="${flight.businessPrice}+'$'"></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:with="ticketList=${ticketListEntry}">
+                    <div th:each="ticket : ${ticketList}">
+                        <div th:class="${ticketService.findCabinNameByTicketId(ticket.id)}=='Economy'? 'ticket-box':'ticket-box-business'">
+                            <div class="ticket">
+                                <div class="ticket-detail imp"
+                                     th:text="'Seat: '+${ticketService.findSeatNameByTicketId(ticket.id)}">
+                                </div>
+                                <div class="ticket-detail imp"
+                                     th:text="'Cabin: '+${ticketService.findCabinNameByTicketId(ticket.id)}">
+                                </div>
+                                <div class="ticket-detail imp"
+                                     th:text="${ticketService.findPassengerNameByTicketId(ticket.id)}">
+                                </div>
+                                <div th:if="${ticketService.findPromotionTicketListByTicketId(ticket.id)!=null}">
+                                    <div th:with="promotionTicketList=${ticket.getPromotionTicketList()}">
+                                        <div class="ticket-detail"
+                                             th:text="'There are '+${promotionTicketList.size()}+' promotion-tickets were used for this ticket'">
+                                        </div>
+                                    </div>
+                                    <div class="ticket-detail"
+                                         th:text="'Price Reduction: ' + ${#numbers.formatDecimal(ticketService.priceReductionForTicket(ticket) * 100, 1, 2, 'COMMA')} + '%'">
+                                    </div>
+                                    <div class="ticket-detail"
+                                         th:text="'Ticket Original Price: '+ ${#numbers.formatDecimal(ticket.price, 1, 2, 'COMMA')} +'$'">
+                                    </div>
+                                </div>
+                                <div class="ticket-detail imp"
+                                     th:text="'Ticket Price: '+ ${#numbers.formatDecimal(ticketService.ticketCost(ticket), 1, 2, 'COMMA')} + '$'">
+                                </div>
+
+
+                                <div class="row">
+                                    <div class="col-lg-3">
+                                        <button class="edit-passenger-btn btn">
+                                            <a th:href="@{/user/passenger-edit-page/{ticketId}(ticketId = ${ticket.id})}">
+                                                Edit Passenger
+                                            </a>
+                                        </button>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <button class="add-promotion-btn btn">
+                                            <a th:href="@{/user/add-promotion-to-ticket-page/ticket/{ticketId}(ticketId = ${ticket.id})}">
+                                                Add Promotion Ticket
+                                            </a>
+                                        </button>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <button class="purchase-btn btn">
+                                            <a th:href="@{/user/purchase-ticket/{ticketId}(ticketId = ${ticket.id})}">
+                                                Purchase Ticket
+                                            </a>
+                                        </button>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <button class="remove-btn btn">
+                                            <a th:href="@{/user/remove-ticket-from-cart/{ticketId}(ticketId = ${ticket.id})}">
+                                                Remove Ticket
+                                            </a>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Pagination-->
+<div class="container">
+    <div class="pagination-box row">
+        <a th:href="${userCartPage}+${firstPage}">
+            <button class="btn-page-control">First Page</button>
+        </a>
+        <a th:href="${userCartPage}+${previousPage}">
+            <button class="btn-page-control">Previous Page</button>
+        </a>
+        <form class="page-form" th:action="@{/user/cart-page}" , method="get">
+            <select  id="page" name="page">
+                <th:block class="page-selection" th:each="page : ${allPageList}">
+                    <option th:value="(${page}-1)"
+                            th:text="${page}"
+                            th:selected="${page==(currentPage+1)}"></option>
+                </th:block>
+            </select>
+            <button class="btn-page-control-submit" type="submit">Go</button>
+        </form>
+        <a th:href="${userCartPage}+${nextPage}">
+            <button class="btn-page-control">Next Page</button>
+        </a>
+        <a th:href="${userCartPage}+${lastPage}">
+            <button class="btn-page-control">Last Page</button>
+        </a>
+    </div>
+</div>
+</body>
+</html>

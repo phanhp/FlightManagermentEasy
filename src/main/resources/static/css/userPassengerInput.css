@@ -1,0 +1,57 @@
+* {
+    margin: 0px;
+    padding: 0px;
+}
+.title{
+    font-size: 25px;
+    font-weight: bolder;
+    color: darkblue;
+}
+.card{
+    margin-top: 20px;
+    border-radius: 6px;
+    border: 2px darkgreen solid;
+    background-color: lightblue;
+    padding: 20px;
+}
+.element{
+    margin-top: 15px;
+}
+.label{
+    margin-top: 12px;
+}
+.label h6{
+    color: darkgreen;
+    font-weight: bolder;
+    font-size: 18px;
+    display: inline-block;
+    vertical-align: center;
+}
+.label span{
+    color: red;
+    font-weight: bold;
+    font-size: 10px;
+    display: inline-block;
+    vertical-align: top;
+}
+.submit{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.btn-submit{
+    width: 160px;
+    height: 45px;
+    color: white;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #00a536;
+    border-radius: 6px;
+}
+.btn-submit:hover{
+    background-color: #00682a;
+    color: lightyellow;
+    font-weight: bolder;
+}

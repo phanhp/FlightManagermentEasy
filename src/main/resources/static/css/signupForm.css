@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0px;
+    padding: 0px;
+}
+.title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0857ff;
+    margin-top: 10px;
+}
+.card-box{
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px darkgrey solid;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+.form-title{
+    margin-top: 5px;
+    color: darkgrey;
+    font-size: 25px;
+    font-weight: bold;
+}
+.error{
+    color: red;
+    margin-top: 6px;
+    font-weight: normal;
+    font-size: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.element{
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.profile-image input[type="file"]{
+    display: none;
+}
+.custom-profile-image{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.custom-profile-image-label{
+    cursor: pointer;
+}
+.image-card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.image-card img{
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-top: 10px;
+    padding: 5px;
+    border: 2px darkblue solid;
+}
+.upload-image{
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.upload-image-btn{
+    width: 150px;
+    height: 45px;
+    border-radius: 6px;
+    background-color: #b1dfbb;
+}
+.upload-image-btn:hover{
+    font-weight: bold;
+}
+.label-title{
+    margin-top: 12px;
+}
+.label-title h6{
+    color: darkblue;
+    font-weight: bolder;
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: center;
+}
+.label-title span{
+    color: red;
+    font-weight: bold;
+    font-size: 10px;
+    display: inline-block;
+    vertical-align: top;
+}
+.field-require input{
+    color: #1c7430;
+    font-weight: bold;
+}
+.submit{
+    margin-bottom: 20px;
+}
+.submit-btn{
+    width: 250px;
+    color: lightyellow;
+    background-color: #1FA9D6;
+    font-size: 16px;
+    font-weight: normal;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.submit-btn a{
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: normal;
+    color: lightyellow;
+}
+.submit-btn a:hover{
+    font-weight: bold;
+}
+.submit-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.submit-btn:hover {
+    background-color: #0056b3;
+    font-size: 16px;
+    font-weight: bolder;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

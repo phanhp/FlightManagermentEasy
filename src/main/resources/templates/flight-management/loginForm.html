@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/css/loginForm.css}" type="text/css">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+    <title>Login Page</title>
+</head>
+<body>
+<header class="header" id="header" th:replace="flight-management/fragments :: header"></header>
+<div class="container">
+    <div class="sign-in card">
+        <form th:action="@{/j_spring_security_check}" method="post">
+            <div class="card-header">
+                <div class="title">Login Your Account</div>
+            </div>
+            <div class="card-body">
+                
+                <div class="input-group form-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="far fa-user"></i>
+                        </span>
+                    </div>
+                    <input class="form-control"
+                           type="text"
+                           placeholder="username"
+                           th:value="${loginAccount}"
+                           name="username">
+                </div>
+
+                <div class="input-group form-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                    </div>
+                    <input class="form-control"
+                           type="password"
+                           placeholder="password"
+                           th:value="${loginPassword}"
+                           name="password">
+                </div>
+
+                <div th:text="${loginError}" class="error"></div>
+
+                <a href="#" class="forget-account">Forget Your Password?</a>
+                </br>
+
+                <div class="row">
+                    <div class="submit col-lg-6">
+                        <button type="submit" class="btn btn-success btn-login">Sign In</button>
+                    </div>
+                    <div class="submit col-lg-6">
+                        <button class="btn btn-success btn-login"><a th:href="@{/flight-management/user-signup-page}">Sign Up</a></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script th:inline="javascript" th:src="@{/js/jquery-3.6.0.min.js}"></script>
+<script th:inline="javascript" th:src="@{/js/boostrap.js}"></script>
+</body>
+</html>

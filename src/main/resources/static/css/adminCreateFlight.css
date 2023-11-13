@@ -1,0 +1,93 @@
+* {
+    margin: 0px;
+    padding: 0px
+}
+.title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0857ff;
+    margin-top: 10px;
+}
+.card-box{
+    margin-top: 5px;
+    border-bottom: 1px darkgrey solid;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+.element{
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.form-title{
+    margin-top: 5px;
+    color: darkgrey;
+    font-size: 25px;
+    font-weight: bold;
+}
+.option{
+    margin-top: 12px;
+}
+.option h6{
+    color: darkblue;
+    font-weight: bolder;
+    font-size: 18px;
+    display: inline-block;
+    vertical-align: center;
+}
+.option span{
+    color: red;
+    font-weight: bold;
+    font-size: 10px;
+    display: inline-block;
+    vertical-align: top;
+}
+.field-require input{
+    color: #1c7430;
+    font-weight: bold;
+}
+.field-require select{
+    color: #1c7430;
+    font-weight: bold;
+}
+.field-require select option[value='0'] {
+    color: black;
+    font-weight: bold;
+}
+.field-not-require label{
+    color: saddlebrown;
+    font-weight: bold;
+}
+.field-not-require select option[value='0'] {
+    color: black;
+    font-weight: bold;
+}
+.field-not-require select{
+    color: black;
+    font-weight: bold;
+}
+.submit-button{
+    margin-bottom: 20px;
+}
+.submit{
+    width: 150px;
+    color: lightyellow;
+    background-color: #1FA9D6;
+    font-size: 20px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.submit:hover {
+    color: lightyellow;
+    background-color: #0056b3;
+    font-size: 20px;
+    font-weight: bolder;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

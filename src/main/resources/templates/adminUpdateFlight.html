@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Flight</title>
+    <script th:src="@{https://code.jquery.com/jquery-3.6.0.min.js}"></script>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css}">
+    <link th:href="@{/css/createFlight.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<div class="container">
+    <h1 class="mt-4">Update Flights</h1>
+    <form th:action="@{/admin/update-flight}" method="post" th:object="${flightDTO}">
+        <div class="form-group col-lg-4">
+            <label for="economyPrice">ID</label>
+            <input type="number" class="form-control" id="flightId" placeholder="Id"
+                   th:field="*{id}" required readonly hidden="hidden">
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="form-group col-lg-4">
+                    <label for="economyPrice">Economy Price</label>
+                    <input type="number" step="any" class="form-control" id="economyPrice" placeholder="Economy Price"
+                           th:field="*{ecnonomyPrice}" required>
+                </div>
+
+                <div class="form-group col-lg-4">
+                    <label for="businessPrice">Business Price</label>
+                    <input type="number" step="any" class="form-control" id="businessPrice" placeholder="Business Price"
+                           th:field="*{businessPrice}" required>
+                </div>
+
+                <div class="col-lg-4">
+                    <label for="aircraftId">Aircraft</label>
+                    <select class="form-control" id="aircraftId" name="aircraftId" required>
+                        <th:block th:each="aircraft : ${aircraftList}">
+                            <option th:value="${aircraft.id}" th:text="${aircraft.name}"
+                                    th:field="*{aircraftId}"
+                                    th:selected="${flightDTO.aircraftId}"></option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+        </div>
+        </br>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="departureCountry">Departure Country</label>
+                    <select class="form-control" id="departureCountry">
+                        <option value="" disabled selected>Choose Departure Country</option>
+                        <th:block th:each="country : ${countryList}">
+                            <option th:value="${country.id}" th:text="${country.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="departureCity">Departure City</label>
+                    <select class="form-control" id="departureCity">
+                        <option value="" disabled selected>Choose Departure City</option>
+                        <th:block th:each="city : ${cityList}">
+                            <option th:value="${city.id}" th:text="${city.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="departureAirport">Departure Airport</label>
+                    <select class="form-control" id="departureAirport">
+                        <option value="" disabled selected>Choose Departure Airport</option>
+                        <th:block th:each="airport : ${airportList}">
+                            <option th:value="${airport.id}" th:text="${airport.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="departureRoute">Departure Route</label>
+                    <select class="form-control" id="departureRoute" name="departureRoute" required>
+                        <option value="" disabled selected>Choose Departure Route</option>
+                        <th:block th:each="route : ${routeList}">
+                            <option th:value="${route.id}" th:text="${route.name}"
+                                    th:field="*{departureRouteId}"
+                                    th:selected="${flightDTO.departureRouteId}"></option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+        </div>
+        </br>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <label for="arrivalCountry">Arrival Country</label>
+                    <select class="form-control" id="arrivalCountry">
+                        <option value="" disabled selected>Choose Arrival Country</option>
+                        <th:block th:each="country : ${countryList}">
+                            <option th:value="${country.id}" th:text="${country.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="arrivalCity">Arrival City</label>
+                    <select class="form-control" id="arrivalCity">
+                        <option value="" disabled selected>Choose Arrival City</option>
+                        <th:block th:each="city : ${cityList}">
+                            <option th:value="${city.id}" th:text="${city.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="arrivalAirport">Arrival Airport</label>
+                    <select class="form-control" id="arrivalAirport">
+                        <option value="" disabled selected>Choose Arrival Airport</option>
+                        <th:block th:each="airport : ${airportList}">
+                            <option th:value="${airport.id}" th:text="${airport.name}"></option>
+                        </th:block>
+                    </select>
+                </div>
+
+                <div class="col-lg-3">
+                    <label for="arrivalRoute">Arrival Route</label>
+                    <select class="form-control" id="arrivalRoute" name="arrivalRoute" required>
+                        <option value="" disabled selected>Choose Departure Route</option>
+                        <th:block th:each="route : ${routeList}">
+                            <option th:value="${route.id}" th:text="${route.name}"
+                                    th:field="*{arrivalRouteId}"
+                                    th:selected="${flightDTO.arrivalRouteId}"></option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6">
+                    <label for="departureTime">Departure Time</label>
+                    <div class="input-group date" id="departureTime" data-target-input="nearest">
+                        <input type="datetime-local" class="form-control datetimepicker-input"
+                               data-target="#datetimepicker"
+                               name="departureTime" th:field="*{departureTime}" required/>
+                        <div class="input-group-append" data-target="#datetimepicker" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <label for="arrivalTime">Arrival Time</label>
+                    <div class="input-group date" id="arrivalTime" data-target-input="nearest">
+                        <input type="datetime-local" class="form-control datetimepicker-input"
+                               data-target="#datetimepicker"
+                               name="arrivalTime" th:field="*{arrivalTime}" required/>
+                        <div class="input-group-append" data-target="#datetimepicker" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </br>
+        <button type="submit" class="btn btn-primary">Update Flight</button>
+    </form>
+</div>
+
+<script th:src="@{/js/boostrap.js}"></script>
+<script th:src="@{https://code.jquery.com/jquery-3.5.1.slim.min.js}"></script>
+<script th:src="@{https://cdn.jsdelivr.net/npm/flatpickr}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js}"></script>
+
+<!--<script>-->
+<!--    $(document).ready(function () {-->
+<!--        // alert("in ready function")-->
+<!--        //Departure Country Change-->
+<!--        $('#departureCountry').change(function () {-->
+<!--            // alert("in change function");-->
+<!--            let departureCountryId = $('#departureCountry').val();-->
+<!--            let departureCountryOption = $('#departureCountry');-->
+
+<!--            let departureCityId = $('#departureCity').val();-->
+<!--            let departureCityOption = $('#departureCity');-->
+
+<!--            let departureAirportId = $('#departureAirport').val();-->
+<!--            let departureAirportOption = $('#departureAirport');-->
+
+<!--            let departureRouteId = $('#departureRoute').val();-->
+<!--            let departureRouteOption = $('#departureRoute');-->
+
+<!--            $.ajax({-->
+<!--                type: 'POST',-->
+<!--                url: '/admin/getCitiesByChangeCountry',-->
+<!--                data: {countryId: departureCountryId},-->
+<!--                success: function (cityList) {-->
+<!--                    alert(departureCountryId);-->
+<!--                    departureCityOption.empty();-->
+<!--                    let defaultOption = '<option value="" disabled selected>Choose Departure City</option>';-->
+<!--                    departureCityOption.append(defaultOption);-->
+<!--                    for (let i = 0; i < cityList.length; i++) {-->
+<!--                        let city = cityList[i];-->
+<!--                        let option = '<option value="' + city.id + '">' + city.name + '</option>';-->
+<!--                        departureCityOption.append(option);-->
+<!--                    }-->
+<!--                },-->
+<!--                error: function () {-->
+<!--                    alert('error');-->
+<!--                }-->
+<!--            });-->
+<!--        });-->
+<!--    });-->
+<!--</script>-->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const departureTimeInput = document.getElementById("departureTime");
+        const arrivalTimeInput = document.getElementById("arrivalTime");
+
+        const today = new Date();
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        const departurePicker = flatpickr(departureTimeInput, {
+            enableTime: true,
+            minDate: yesterday,
+            dateFormat: "Y-m-d H:i:S",
+            onChange: function (selectedDates, dateStr) {
+                arrivalPicker.set("minDate", dateStr);
+            },
+        });
+
+        const arrivalPicker = flatpickr(arrivalTimeInput, {
+            enableTime: true,
+            minDate: today,
+            dateFormat: "Y-m-d H:i:S",
+            onChange: function (selectedDates, dateStr) {
+                departurePicker.set("maxDate", dateStr);
+            },
+        });
+    });
+</script>
+</body>
+</html>

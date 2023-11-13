@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action="@{/flight-management/mytime-update}" method="post">
+    <label>Year</label>
+    <input type="number" name="year" required th:value="${year}">
+    <label>Month</label>
+    <input type="number" name="month" required th:value="${month}">
+    <label>Day</label>
+    <input type="number" name="day" required th:value="${day}">
+    <label>Hour</label>
+    <input type="number" name="hour" required th:value="${hour}">
+    <label>Minute</label>
+    <input type="number" name="minute" required th:value="${minute}">
+    <label>Second</label>
+    <input type="number" name="second" required th:value="${second}">
+    <button type="submit">Submit Time</button>
+</form>
+</body>
+</html>

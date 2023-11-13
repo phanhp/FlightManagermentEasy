@@ -1,0 +1,35 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.form{
+    margin-top: 15px;
+    width: 80%;
+    background-color: antiquewhite;
+    border-radius: 6px;
+    padding: 15px;
+}
+.title-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.title{
+    color: darkblue;
+    font-weight: bold;
+}
+.dear{
+    margin-top: 8px;
+    color: darkblue;
+}
+.warn{
+    margin-top: 8px;
+    color: red;
+}
+.submit{
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

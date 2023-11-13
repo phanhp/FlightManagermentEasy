@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank Account</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/userBankAccount.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<form th:action="@{/user/bank-account}" method="post">
+    <label>Enter Your Bank Account</label>
+    <input type="text" name="bankAccountName" placeholder="Bank Account Name">
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

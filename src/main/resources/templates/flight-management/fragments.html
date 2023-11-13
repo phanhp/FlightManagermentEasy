@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/boostrap.css}">
+    <link rel="stylesheet" th:href="@{/css/fragments.css}">
+</head>
+<body>
+<div th:fragment="header">
+    <nav class="navbar navbar-expand-lg header-container">
+        <a class="navbar-brand header-logo-box" th:href="@{/}">
+            <div class="header-logo"><img th:src="@{/images/aircraft.jpg}" alt="image"></div>
+            <div class="header-team-name">Flight-Management</div>
+        </a>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active header-element">
+                    <div class="header-style-border"></div>
+                </li>
+                <li class="nav-item active header-element">
+                    <a class="nav-link" th:href="@{/}">Home</a>
+                </li>
+                <li class="nav-item active header-element">
+                    <div class="header-style-border"></div>
+                </li>
+                <li class="nav-item header-element">
+                    <a class="nav-link" th:href="@{/}">About</a>
+                </li>
+                <div class="header-condition" th:if="${loginSession.isLoggedIn()}">
+                    <li class="nav-item active header-element">
+                        <div class="header-style-border"></div>
+                    </li>
+                    <li class="nav-item header-element">
+                        <a class="nav-link header-a" th:href="@{/user/cart-page}">
+                            <div class="header-cart-image">
+                                <img th:src="@{/images/cart.jpg}" alt="image">
+                            </div>
+                            <div class="header-cart-name">
+                                <p>View Booking</p>
+                                <span th:text="${bookingSession.numberNonPurchasedTicket()}"></span>
+                            </div>
+                        </a>
+                    </li>
+                </div>
+                <li class="nav-item active header-element">
+                    <div class="header-style-border"></div>
+                </li>
+                <div class="header-condition" th:if="${loginSession.isLoggedIn()}">
+                    <li class="nav-item header-element">
+                        <a class="nav-link header-a" th:href="@{/user/view-profile-page}">
+                            <div class="header-account-name" th:text="${loginSession.getAccount().accountName}"></div>
+                            <div class="header-profile-image" th:if="${accountImg} != null">
+                                <img th:src="@{*{'data:image/png;base64,'}+${accountImg}}" alt="image">
+                            </div>
+                            <div class="header-profile-image" th:if="${accountImg} == null">
+                                <img th:src="@{/images/blankUser.jpg}" alt="image">
+                            </div>
+                        </a>
+                    </li>
+                </div>
+                <div class="header-condition" th:unless="${loginSession.isLoggedIn()}">
+                    <li class="nav-item header-element">
+                        <a class="nav-link" th:href="@{/login-page}">
+                            <div class="user-name">Login</div>
+                        </a>
+                    </li>
+                </div>
+                <li class="nav-item active header-element">
+                    <div class="header-style-border"></div>
+                </li>
+                <div class="header-condition" th:if="${loginSession.isLoggedIn()}">
+                    <li class="nav-item header-element">
+                        <a class="nav-link" th:href="@{/logout}">Logout</a>
+                    </li>
+                </div>
+                <div class="header-condition" th:unless="${loginSession.isLoggedIn()}">
+                    <li class="nav-item header-element">
+                        <a class="nav-link" th:href="@{/flight-management/user-signup-page}">SignUp</a>
+                    </li>
+                </div>
+            </ul>
+        </div>
+    </nav>
+</div>
+</body>
+</html>

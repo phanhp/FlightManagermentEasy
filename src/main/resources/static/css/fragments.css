@@ -1,0 +1,118 @@
+.header-container{
+    background-color:  #42afff;
+    height: 100px;
+    margin-bottom: 5px;
+}
+.header-condition{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header-logo-box{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header-logo{
+    height: 70px;
+    width: 70px;
+    border-radius: 50%;
+    padding: 3px;
+    border: 2px solid darkblue;
+    background-color: #b1dfbb;
+}
+.header-logo img{
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    border: 2px solid darkblue;
+}
+.header-team-name{
+    vertical-align: center;
+    margin-left: 10px;
+    color: blue;
+    font-weight: bold;
+    font-size: 25px;
+}
+.header-team-name:hover{
+    color: darkblue;
+    font-size: 27px;
+}
+.header-style-border{
+    height: 45px;
+    border-left: solid 1px grey;
+}
+.header-element{
+    margin-right: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header-element a{
+    color: blue;
+    font-size: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header-element:hover a{
+    color: darkblue;
+    font-weight: bold;
+}
+.header-a{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header-profile-image{
+    height: 70px;
+    width: 70px;
+    border-radius: 50%;
+    padding: 3px;
+    border: 2px solid darkblue;
+    background-color: #b1dfbb;
+}
+.header-profile-image img{
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    border: 2px solid darkblue;
+}
+.header-account-name{
+    margin-right: 12px;
+    font-size: 16px;
+}
+.header-cart-image{
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+}
+.header-cart-image img{
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+}
+.header-cart-name{
+    margin-left: 10px;
+    display: inline-block;
+    justify-content: center;
+    align-items: center;
+}
+.header-cart-name p{
+    margin-top: 15px;
+    color: darkblue;
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: bottom;
+}
+.header-cart-name span{
+    padding-left: 5px;
+    padding-right: 5px;
+    background-color: #42afff;
+    border-radius: 35%;
+    color: purple;
+    font-size: 11px;
+    display: inline-block;
+    vertical-align: top;
+    border: 2px solid whitesmoke;
+}

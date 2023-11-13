@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Flights Admin</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/adminViewFlights.css}" rel="stylesheet" type="text/css">
+    <script th:src="@{https://code.jquery.com/jquery-3.6.0.min.js}"></script>
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<!--Search bar-->
+<div class="container">
+    <form th:action="@{/admin/view-flights-page/search}" method="get">
+        <div class="search-box row">
+            <div class="col-lg-3">
+                <label for="departureCity">Departure City</label>
+                <select class="form-control" id="departureCity" name="departureCityId">
+                    <option th:value="0" selected>Choose Departure Country</option>
+                    <th:block th:each="city : ${cityList}">
+                        <option th:value="${city.id}" th:text="${city.name}"
+                                th:selected="${city.id==departureCityId}"></option>
+                    </th:block>
+                </select>
+            </div>
+            <div class="col-lg-3">
+                <label for="arrivalCity">Arrival City</label>
+                <select class="form-control" id="arrivalCity" name="arrivalCityId">
+                    <option th:value="0" selected>Choose Arrival Country</option>
+                    <th:block th:each="city : ${cityList}">
+                        <option th:value="${city.id}" th:text="${city.name}"
+                                th:selected="${city.id== arrivalCityId}"></option>
+                    </th:block>
+                </select>
+            </div>
+            <div class="col-lg-3 time-search">
+                <label for="departureTime">Departure Time</label>
+                <input class="form-control" type="date"
+                       id="departureTime" name="departureTime"
+                       th:value="${departureTime}">
+            </div>
+            <div class="col-lg-3">
+                <button type="submit" class="btn btn-success btn-search">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+<!--Flight List-->
+<div class="container flight-list" id="flightList">
+    <div class="result-search" th:text="${resultSearch}"></div>
+    <div class="card custom-card-box" th:each="flight : ${flightList}">
+        <div class="card-box">
+            <div class="row element">
+                <div class="col-lg-6">
+                    <div class="row">
+                        <h5 class="my-option-name city">Departure City:</h5>
+                        <h5 class="city" th:text="${flight.departureCity}"></h5>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row">
+                        <h5 class="my-option-name city">Arrival City:</h5>
+                        <h5 class="city" th:text="${flight.arrivalCity}"></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-6 time-box">
+                    <div class="row">
+                        <h5 class="my-option-name time">Departure Time:</h5>
+                        <h5 class="time"
+                            th:text="${#temporals.format(#temporals.createDateTime(flight.departureTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
+                    </div>
+                </div>
+                <div class="col-lg-6 time-box">
+                    <div class="row">
+                        <h5 class="my-option-name time">Arrival Time:</h5>
+                        <h5 class="time"
+                            th:text="${#temporals.format(#temporals.createDateTime(flight.arrivalTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
+                    </div>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-6">
+                    <div class="row">
+                        <p class="my-option-name price">Economy Price: </p>
+                        <p class="price" th:text="${flight.ecnonomyPrice}+'$'"></p>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="row">
+                        <p class="my-option-name price">Business Price: </p>
+                        <p class="price" th:text="${flight.businessPrice}+'$'"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row element">
+                <div class="col-lg-6 custom-btn-update">
+                    <button class="btn btn-success btn-update d-flex justify-content-center"><a
+                            th:href="@{/}">Update</a>
+                    </button>
+                </div>
+                <div class="col-lg-6 custom-btn-delete">
+                    <button class="btn btn-danger btn-delete d-flex justify-content-center"><a
+                            th:href="@{/}">Delete</a>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--Pagination-->
+<div class="container">
+    <div class="pagination-box row">
+        <a th:href="${homePage}+${firstPage}">
+            <button class="btn-page-control">First Page</button>
+        </a>
+        <a th:href="${homePage}+${previousPage}">
+            <button class="btn-page-control">Previous Page</button>
+        </a>
+        <form class="page-form" th:action="@{/flight-management/search}" , method="get">
+            <input type="number" th:value="${departureCityId}" name="departureCityId" readonly hidden="hidden"
+                   style="display: none">
+            <input type="number" th:value="${arrivalCityId}" name="arrivalCityId" readonly hidden="hidden"
+                   style="display: none">
+            <input type="date" th:value="${departureTime}" name="departureTime" readonly hidden="hidden"
+                   style="display: none">
+            <select  id="page" name="page">
+                <th:block class="page-selection" th:each="page : ${allPageList}">
+                    <option th:value="(${page}-1)"
+                            th:text="${page}"
+                            th:selected="${page==(currentPage+1)}"></option>
+                </th:block>
+            </select>
+            <button class="btn-page-control-submit" type="submit">Go</button>
+        </form>
+        <a th:href="${homePage}+${nextPage}">
+            <button class="btn-page-control">Next Page</button>
+        </a>
+        <a th:href="${homePage}+${lastPage}">
+            <button class="btn-page-control">Last Page</button>
+        </a>
+    </div>
+</div>
+<script th:src="@{/js/adminViewFlight.js}" type="text/javascript"></script>
+</body>
+</html>

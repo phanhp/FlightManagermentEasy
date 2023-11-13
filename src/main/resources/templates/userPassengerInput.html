@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/userPassengerInput.css}" rel="stylesheet" type="text/css">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<div class="container">
+    <div class="card">
+        <form th:action="@{/user/passenger-register}" method="post" th:object="${passenger}">
+            <div class="title" th:text="'Seat: '+${ticket.seat.name}"></div>
+            <input type="number" readonly th:value="${ticket.id}" hidden="hidden" name="ticketId">
+
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label"
+                           for="identity">
+                        <h6>Identity</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10">
+                    <input class="form-control"
+                           id="identity"
+                           type="text"
+                           placeholder="Passenger Identity"
+                           th:value="${passenger.identity}"
+                           th:field="*{identity}"
+                           name="identity"
+                           required>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label"
+                           for="name">
+                        <h6>Name</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10">
+                    <input class="form-control"
+                           id="name"
+                           type="text"
+                           placeholder="Passenger Name"
+                           th:value="${passenger.name}"
+                           th:field="*{name}"
+                           name="name"
+                           required>
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label"
+                           for="address">
+                        <h6>Address</h6>
+                    </label>
+                </div>
+                <div class="col-lg-10">
+                    <input class="form-control"
+                           id="address"
+                           type="text"
+                           placeholder="Address"
+                           th:value="${passenger.address}"
+                           th:field="*{address}"
+                           name="address">
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label"
+                           for="dob">
+                        <h6>Birthday</h6>
+                    </label>
+                </div>
+                <div class="col-lg-10">
+                    <input class="form-control"
+                           id="dob"
+                           type="date"
+                           th:value="${passenger.dob}"
+                           name="dob">
+                </div>
+            </div>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label"
+                           for="gender">
+                        <h6>Gender</h6>
+                    </label>
+                </div>
+                <div class="col-lg-10">
+                    <select class="form-control"
+                            id="gender"
+                            name="gender">
+                        <option value="" selected>Choose Your Gender</option>
+                        <th:block th:each="gender : ${genderList}">
+                            <option th:value="${gender}" th:text="${gender}"
+                                    th:selected="${gender == passenger.gender}"></option>
+                        </th:block>
+                    </select>
+                </div>
+            </div>
+
+            <div class="submit">
+                <button class="btn-submit" type="submit">Apply Passenger</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

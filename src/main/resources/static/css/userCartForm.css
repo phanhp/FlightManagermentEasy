@@ -1,0 +1,158 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+.error{
+    color: red;
+    background-color: hotpink;
+}
+.card{
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #00ffaf;
+    border: 2px #224721 solid;
+}
+.custom-card-box{
+    background-color: #bee5eb;
+    border-radius: 10px;
+    border: #1FA9D6 2px solid;
+    margin-bottom: 5px;
+}
+.card-box{
+    margin-top: 5px;
+    margin-left: 20px;
+}
+.ticket-box{
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border: #1c7430 2px solid;
+    border-radius: 10px;
+    background-color: ghostwhite;
+}
+.ticket-box-business{
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border: #1c7430 2px solid;
+    border-radius: 10px;
+    background-color: #feffd3;
+}
+.ticket{
+    padding: 20px;
+}
+.ticket-detail{
+    margin-top: 5px;
+    font-size: 15px;
+    color: darkblue;
+}
+.imp{
+    font-weight: bold;
+}
+.custom-btn-buy{
+    margin-bottom: 10px;
+}
+.btn-buy{
+    width: 100px;
+}
+.btn-buy a{
+    color: white;
+}
+.flight-list{
+    margin-top: 10px;
+}
+.my-option-name{
+    margin-right: 8px;
+}
+.city{
+    color: black;
+}
+.time {
+    color: purple;
+}
+.price{
+    color: blue;
+}
+.seat{
+    color: #1FA9D6;
+}
+.btn{
+    margin-top: 10px;
+    width: 200px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.btn a{
+    text-decoration: none;
+    color: white;
+    font-size: 15px;
+}
+.btn a:hover{
+    text-decoration: none;
+    color: lightyellow;
+    font-size: 15px;
+    font-weight: bold;
+}
+.edit-passenger-btn{
+    background-color: #ae00cd;
+    border-radius: 6px;
+}
+.edit-passenger-btn:hover{
+    background-color: #7f009f;
+}
+.add-promotion-btn{
+    background-color: #00c764;
+    border-radius: 6px;
+}
+.add-promotion-btn:hover{
+    background-color: #006f37;
+}
+.purchase-btn{
+    background-color: #0a6eff;
+    border-radius: 6px;
+}
+.purchase-btn:hover{
+    background-color: #0a4e9c;
+}
+.remove-btn{
+    background-color: #ff6447;
+    border-radius: 6px;
+}
+.remove-btn:hover{
+    background-color: #90371a;
+}
+.pagination-box{
+    margin-top: 25px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.btn-page-control{
+    margin: 1px;
+    padding: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: #9fcdff;
+    border-radius: 5px;
+    color: darkblue;
+}
+.btn-page-control-submit{
+    margin: 2px;
+    padding: 5px;
+    height: 35px;
+    width: 130px;
+    background-color: #94db8a;
+    border-radius: 5px;
+    color: red;
+}
+.btn-page-control:hover, .btn-page-control-submit:hover{
+    font-weight: bold;
+}
+.page-form select{
+    margin: 2px;
+    padding: 5px;
+    height: 35px;
+    width: 70px;
+    border-radius: 5px;
+}
