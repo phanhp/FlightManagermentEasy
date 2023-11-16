@@ -581,7 +581,7 @@ public class BookingSession {
         return usePromotionTicketResult(promotionTicket, ticket);
     }
 
-    public String unUsedPromotionTicket(PromotionTicket promotionTicket) {
+    public String unUsedPromotionTicketResult(PromotionTicket promotionTicket) {
         try {
             ticketService.unUsedPromotionTicket(promotionTicket);
             return "Promotion Ticket Unused Success";
@@ -591,8 +591,8 @@ public class BookingSession {
         }
     }
 
-    public String unUsedPromotionTicket(long promotionTicketId) {
+    public String unUsedPromotionTicketResult(long promotionTicketId) {
         PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(null);
-        return unUsedPromotionTicket(promotionTicket);
+        return unUsedPromotionTicketResult(promotionTicket);
     }
 }

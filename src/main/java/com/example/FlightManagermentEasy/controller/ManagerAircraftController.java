@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Optional;
 
 @Controller
-public class AdminAircraftController {
+public class ManagerAircraftController {
     @Autowired
     ObjectConverter objectConverter;
     @Autowired

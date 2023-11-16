@@ -114,7 +114,7 @@ public class UserBookingController {
                                            HttpSession session,
                                            Model model) {
         String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
-        bookingSession.isUnbookedTicketSuccess(ticketId);
+        String result = bookingSession.unBookTicketResult(ticketId);
         return userCartPageUrl;
     }
 
@@ -140,7 +140,7 @@ public class UserBookingController {
                                    HttpSession session,
                                    Model model) {
         String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userPurchasedTicketPage", "/user/view-purchased-tickets-page");
-        bookingSession.isRefundTicketSuccess(ticketId);
+        String result = bookingSession.refundTicketResult(ticketId);
         return userCartPageUrl;
     }
 
@@ -175,7 +175,7 @@ public class UserBookingController {
                                         HttpSession session,
                                         Model model) {
         String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
-        bookingSession.isSetPassengerToTicketSuccess(ticketId, identity, name, address, dob, gender);
+        String result = bookingSession.setPassengerToTicketResult(ticketId, identity, name, address, dob, gender);
         return userCartPageUrl;
     }
 
@@ -187,7 +187,7 @@ public class UserBookingController {
             return "redirect:/user/bank-account-page";
         } else {
             String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
-            bookingSession.isPurchaseSingleTicketSuccess(ticketId);
+            String result = bookingSession.purchaseTicketResult(ticketId);
             return userCartPageUrl;
         }
     }
@@ -197,7 +197,7 @@ public class UserBookingController {
         if (bookingSession.getBankAccount() == null) {
             return "redirect:/user/bank-account-page";
         } else {
-            bookingSession.isPurchaseAllTicketsSuccess();
+            String result = bookingSession.purchaseAllTicketResult();
             return "redirect:/user/cart-page";
         }
     }
@@ -250,22 +250,15 @@ public class UserBookingController {
     @PostMapping("/user/add-promotion-to-ticket")
     public String userAddPromotionToTicket(@RequestParam("promotionTicketCode") String code,
                                            @RequestParam("ticketId") long ticketId) {
-        if (bookingSession.isUsePromotionTicketSuccess(code, ticketId)) {
-            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
-        } else {
-            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
-        }
+        String result = bookingSession.usePromotionTicketResult(code, ticketId);
+        return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
     }
 
     @GetMapping("/user/remove-promotion-from-ticket/{promotionTicketId}/{ticketId}")
     public String removePromotionFromTicket(@PathVariable("promotionTicketId") long promotionTicketId,
                                             @PathVariable("ticketId") long ticketId) {
-        if(bookingSession.isUnUsedPromotionTicketSuccess(promotionTicketId)){
-            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
-        } else {
-            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
-        }
-
+        String result = bookingSession.unUsedPromotionTicketResult(promotionTicketId);
+        return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
     }
 
     //Login Bank Account For BookingSession
