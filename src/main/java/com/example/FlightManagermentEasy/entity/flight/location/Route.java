@@ -16,7 +16,7 @@ public class Route {
     @Column(name = "name", nullable = false)
     private String name;
     @ManyToOne
-    @JoinColumn(name = "airport_id", nullable = false)
+    @JoinColumn(name = "airport_id")
     private Airport airport;
     @OneToMany(mappedBy = "departureRoute", cascade = CascadeType.ALL)
     private List<Flight> departureRoute;

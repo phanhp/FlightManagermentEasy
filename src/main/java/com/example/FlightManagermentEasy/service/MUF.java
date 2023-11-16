@@ -13,10 +13,12 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
 public class MUF {
+    //Separate String
     public ArrayList<String> toArrayString1(String s) {
         if (s.isEmpty()) {
             return null;
@@ -41,77 +43,29 @@ public class MUF {
         return sl;
     }
 
-    public boolean isValidName(String primary, String compare) {
-        return primary.toLowerCase().contains(compare.toLowerCase());
-    }
-
     public List<String> getAlphabetList() {
         List<String> list = toArrayString1("QWERTYUIOPASDFGHJKLZXCVBNM1234567890");
         return list;
     }
 
-    public String localDateTimeToString(LocalDateTime localDateTime) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-            return localDateTime.format(formatter);
-        } catch (Exception e) {
-            System.out.println("MUF: localDateTimeToString null by fail");
-            return null;
-        }
+    //Convert String And Time
+    public List<String> localDateTimeFormatterList() {
+        List<String> fomartterList = new ArrayList<>();
+        fomartterList.add("yyyy-MM-dd'T'HH:mm");
+        fomartterList.add("yyyy/MM/dd'T'HH:mm");
+        fomartterList.add("dd/MM/yyyy HH:mm");
+        fomartterList.add("dd-MM-yyyy HH:mm");
+        fomartterList.add("dd/MM/yyyy' At: 'HH:mm");
+        return fomartterList;
     }
 
-    public LocalDateTime stringToLocalDateTime(String localDateTime) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-            return LocalDateTime.parse(localDateTime, formatter);
-        } catch (Exception e) {
-            System.out.println("MUF: stringToLocalDateTime null by fail");
-            return null;
-        }
-    }
-
-    public String viewStringOfLocalDateTime(String inputLocalDateTimeString) {
-        SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        try {
-            Date date = inputDateFormat.parse(inputLocalDateTimeString);
-            String outputLocalDateTimeString = outputDateFormat.format(date);
-            return outputLocalDateTimeString;
-        } catch (ParseException e) {
-            return null;
-        }
-    }
-
-    public String viewStringOfLocalDate(String inputLocalDateString) {
-        SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        SimpleDateFormat outputDateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        try {
-            Date date = inputDateFormat.parse(inputLocalDateString);
-            String outputLocalDateString = outputDateFormat.format(date);
-            return outputLocalDateString;
-        } catch (ParseException e) {
-            return null;
-        }
-    }
-
-    public String localDateToString(LocalDate localDate) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return localDate.format(formatter);
-        } catch (Exception e) {
-            System.out.println("MUF: localDateToString null by fail");
-            return null;
-        }
-    }
-
-    public LocalDate stringToLocalDate(String localDate) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            return LocalDate.parse(localDate, formatter);
-        } catch (Exception e) {
-            System.out.println("MUF: stringToLocalDate null by fail");
-            return null;
-        }
+    public List<String> localDateFormatterList() {
+        List<String> formaterList = new ArrayList<>();
+        formaterList.add("yyyy-MM-dd");
+        formaterList.add("yyyy/MM/dd");
+        formaterList.add("dd/MM/yyyy");
+        formaterList.add("dd-MM-yyyy");
+        return formaterList;
     }
 
     public LocalDate localDateTimeToLocalDate(LocalDateTime localDateTime) {
@@ -119,7 +73,6 @@ public class MUF {
             LocalDate localDate = localDateTime.toLocalDate();
             return localDate;
         } catch (Exception e) {
-            System.out.println("MUF: localDateTimeToLocalDate null by fail");
             return null;
         }
     }
@@ -129,11 +82,165 @@ public class MUF {
             LocalDateTime localDateTime = localDate.atStartOfDay();
             return localDateTime;
         } catch (Exception e) {
-            System.out.println("MUF: localDateToLocalDateTime null by fail");
             return null;
         }
     }
 
+    public String localDateTimeToString(LocalDateTime inputLocalDateTime) {
+        if (inputLocalDateTime == null) {
+            return null;
+        } else {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+                return inputLocalDateTime.format(formatter);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
+
+    public LocalDateTime stringToLocalDateTime(String inputString) {
+        if (inputString == null) {
+            return null;
+        } else if (inputString.isEmpty()) {
+            return null;
+        } else {
+            for (String formatString : localDateTimeFormatterList()) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
+                try {
+                    LocalDateTime result = LocalDateTime.parse(inputString, formatter);
+                    return result;
+                } catch (Exception e) {
+                }
+            }
+            for (String formatString : localDateFormatterList()) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
+                    LocalDate tempResult = LocalDate.parse(inputString, formatter);
+                    return localDateToLocalDateTime(tempResult);
+                } catch (Exception e) {
+                }
+            }
+            return null;
+        }
+    }
+
+    public String localDateToString(LocalDate inputLocalDate) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            return inputLocalDate.format(formatter);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public LocalDate stringToLocalDate(String inputString) {
+        if (inputString == null) {
+            return null;
+        } else if (inputString.isEmpty()) {
+            return null;
+        } else {
+            for (String formatString : localDateFormatterList()) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
+                    return LocalDate.parse(inputString, formatter);
+                } catch (Exception e) {
+                }
+            }
+            for (String formatString : localDateTimeFormatterList()) {
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(formatString);
+                    LocalDateTime tempResult = LocalDateTime.parse(inputString, formatter);
+                    return localDateTimeToLocalDate(tempResult);
+                } catch (Exception e) {
+                }
+            }
+            return null;
+        }
+    }
+
+    public String viewStringOfLocalDateTime(String inputLocalDateTimeString, String formatter) {
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat(formatter);
+        try {
+            Date date = inputDateFormat.parse(inputLocalDateTimeString);
+            String outputLocalDateTimeString = outputDateFormat.format(date);
+            return outputLocalDateTimeString;
+        } catch (DateTimeParseException e) {
+            return null;
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    public String viewStringOfLocalDate(String inputLocalDateString, String formatter) {
+        SimpleDateFormat inputDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat outputDateFormat = new SimpleDateFormat(formatter);
+        try {
+            Date date = inputDateFormat.parse(inputLocalDateString);
+            String outputLocalDateString = outputDateFormat.format(date);
+            return outputLocalDateString;
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    public String viewDayMonthYear(LocalDateTime input) {
+        if (input == null) {
+            return null;
+        } else {
+            int year = input.getYear();
+            int month = input.getMonthValue();
+            int day = input.getDayOfMonth();
+            String MM = new String();
+            String dd = new String();
+            if (month < 10) {
+                MM = "0" + month;
+            } else {
+                MM = String.valueOf(month);
+            }
+            if (day < 10) {
+                dd = "0" + day;
+            } else {
+                dd = String.valueOf(day);
+            }
+            return dd + "/" + MM + "/" + year;
+        }
+    }
+
+    public String viewHourMinute(LocalDateTime input) {
+        if (input == null) {
+            return null;
+        } else {
+            int hour = input.getHour();
+            int minute = input.getMinute();
+            String HH = new String();
+            String mm = new String();
+            if (hour < 10) {
+                HH = "0" + hour;
+            } else {
+                HH = String.valueOf(hour);
+            }
+            if (minute < 10) {
+                mm = "0" + minute;
+            } else {
+                mm = String.valueOf(minute);
+            }
+            return HH + ":" + mm;
+        }
+    }
+
+    public String viewDayMonthYear(String input) {
+        LocalDateTime localDateTime = stringToLocalDateTime(input);
+        return viewDayMonthYear(localDateTime);
+    }
+
+    public String viewHourMinute(String input) {
+        LocalDateTime localDateTime = stringToLocalDateTime(input);
+        return viewHourMinute(localDateTime);
+    }
+
+    //Generate Unique Key
     public String generateRandomKeyInSet(Set<String> list, int stringLength) {
         String s = "";
         List<String> alphabet = getAlphabetList();
@@ -146,6 +253,7 @@ public class MUF {
         return s;
     }
 
+    //Create Number List From start To end
     public List<Integer> createIntegerListFromNumberToNumber(int start, int end) {
         List<Integer> result = new ArrayList<>();
         for (int i = start; i <= end; i++) {
@@ -154,6 +262,7 @@ public class MUF {
         return result;
     }
 
+    //image Checker
     public boolean isImage(MultipartFile multipartFile) {
         if (!multipartFile.isEmpty()) {
             String content = multipartFile.getContentType();
@@ -179,7 +288,7 @@ public class MUF {
         }
     }
 
-    //Generate Alphabet Automaticaly
+    //Auto Generate AlphabetList By Number Input
     public List<String> autoGenerateSeatRow(int numberOfSeatRow) {
         List<String> alphabet = toArrayString1("ABCDEFGHIJKLMNOPQRSTRUVWXYZ");
         List<String> result = new ArrayList<>();
@@ -252,21 +361,33 @@ public class MUF {
         return result;
     }
 
-//    MySimpleEncodeAndDecode
-public List<List<String>> getCodeList() {
-    String s = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890`~!@#$%^&*()-_+={[]}|\\:;\"'<,>.?/ ";
-    String[] array = s.split("");
-    List<List<String>> objectList = new ArrayList<>();
-    List<String> baseString = new ArrayList<>();
-    List<String> codeList = new ArrayList<>();
-    for (int i = 0; i < s.length(); i++) {
-        baseString.add(array[i]);
-        codeList.add(String.valueOf(i));
+    //Guarantee Transform String to String Of Number
+    public String ultimateNumberFormatter(String input) {
+        input = input.replaceAll("[^0-9\\-]", "")
+                .replaceAll("^0+(?!$)", "")
+                .replaceAll("[^0-9\\-]|(?<!^)([\\-])", "")
+                .replaceAll("^(-?)0+(\\d+)$", "$1$2");
+        if (input.equals("-") | input.equals("")) {
+            input = "0";
+        }
+        return input;
     }
-    objectList.add(baseString);
-    objectList.add(codeList);
-    return objectList;
-}
+
+    //    MyToken Encode And Decode
+    public List<List<String>> getCodeList() {
+        String s = "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890`~!@#$%^&*()-_+={[]}|\\:;\"'<,>.?/ ";
+        String[] array = s.split("");
+        List<List<String>> objectList = new ArrayList<>();
+        List<String> baseString = new ArrayList<>();
+        List<String> codeList = new ArrayList<>();
+        for (int i = 0; i < s.length(); i++) {
+            baseString.add(array[i]);
+            codeList.add(String.valueOf(i));
+        }
+        objectList.add(baseString);
+        objectList.add(codeList);
+        return objectList;
+    }
 
     public String encodeString(String input) {
         if (input == null) {

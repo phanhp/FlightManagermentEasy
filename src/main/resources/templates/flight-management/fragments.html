@@ -22,12 +22,6 @@
                 <li class="nav-item active header-element">
                     <a class="nav-link" th:href="@{/}">Home</a>
                 </li>
-                <li class="nav-item active header-element">
-                    <div class="header-style-border"></div>
-                </li>
-                <li class="nav-item header-element">
-                    <a class="nav-link" th:href="@{/}">About</a>
-                </li>
                 <div class="header-condition" th:if="${loginSession.isLoggedIn()}">
                     <li class="nav-item active header-element">
                         <div class="header-style-border"></div>
@@ -40,6 +34,22 @@
                             <div class="header-cart-name">
                                 <p>View Booking</p>
                                 <span th:text="${bookingSession.numberNonPurchasedTicket()}"></span>
+                            </div>
+                        </a>
+                    </li>
+                </div>
+                <div class="header-condition" th:if="${loginSession.isLoggedIn()}">
+                    <li class="nav-item active header-element">
+                        <div class="header-style-border"></div>
+                    </li>
+                    <li class="nav-item header-element">
+                        <a class="nav-link header-a" th:href="@{/user/view-purchased-tickets-page}">
+                            <div class="header-cart-image">
+                                <img th:src="@{/images/booking.jpg}" alt="image">
+                            </div>
+                            <div class="header-cart-name">
+                                <p>Purchased Tickets</p>
+                                <span th:text="${bookingSession.numberPurchasedTicket()}"></span>
                             </div>
                         </a>
                     </li>

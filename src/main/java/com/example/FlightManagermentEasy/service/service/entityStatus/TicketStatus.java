@@ -33,234 +33,156 @@ public class TicketStatus {
     @Autowired
     PaymentHistoryRepository paymentHistoryRepository;
 
-    //Promotion Ticket
-    //reload status
+    //************************ PROMOTION TICKET **************************************
+    //Reload Status
     public PromotionTicket reloadPromotionTicketStatus(PromotionTicket promotionTicket) {
         LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        if (promotionTicket.isAvailable()) {
-            if (promotionTicket.getExpiredDate().isBefore(thisMoment)) {
-                promotionTicket.setAvailable(false);
-            }
+        if (promotionTicket.getExpiredDate().isBefore(thisMoment)) {
+            promotionTicket.setAvailable(false);
         }
         promotionTicketRepository.save(promotionTicket);
         return promotionTicket;
     }
 
-    public PromotionTicket reloadPromotionTicketStatus(long promotionTicketId) {
-        PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(null);
-        if (promotionTicket != null) {
-            promotionTicket = reloadPromotionTicketStatus(promotionTicket);
-        }
+    //Set Used
+    public PromotionTicket setUsedPromotionTicket(PromotionTicket promotionTicket, Ticket ticket) {
+        promotionTicket.setTicket(ticket);
+        promotionTicket.setAvailable(false);
+        promotionTicketRepository.save(promotionTicket);
         return promotionTicket;
     }
 
-    //PaymentHistory
+    //Set Unused
+    public PromotionTicket setUnUsedPromotionTicket(PromotionTicket promotionTicket) {
+        promotionTicket.setAvailable(true);
+        promotionTicket.setTicket(null);
+        promotionTicketRepository.save(promotionTicket);
+        return promotionTicket;
+    }
+
+    //************************ PAYMENT HISTORY **************************************
+    //Remove Payment From Ticket
     public PaymentHistory removeTicketFromPaymentHistory(PaymentHistory paymentHistory) {
         paymentHistory.setTicket(null);
         paymentHistoryRepository.save(paymentHistory);
         return paymentHistory;
     }
 
-    public List<PaymentHistory> removeAllPaymentHistoryFromTicket(Ticket ticket) {
+    //************************ TICKET **************************************
+    //Remove All Payment From Ticket, Prepare For Delete
+    public Ticket removePaymentHistoryListFromTicket(Ticket ticket) {
         List<PaymentHistory> paymentHistoryList = paymentHistoryRepository.findPaymentHistoryByTicketId(ticket.getId());
         if (paymentHistoryList != null) {
             for (int i = 0; i < paymentHistoryList.size(); i++) {
-                PaymentHistory paymentHistory = removeTicketFromPaymentHistory(paymentHistoryList.get(i));
-                paymentHistoryList.set(i, paymentHistory);
-            }
-        }
-        return paymentHistoryList;
-    }
-
-    //set used status
-    public PromotionTicket setUsedPromotionTicket(PromotionTicket promotionTicket, Ticket ticket) {
-        promotionTicket = reloadPromotionTicketStatus(promotionTicket);
-        if (!ticket.isPurchased()) {
-            if (promotionTicket.isAvailable()) {
-                promotionTicket.setAvailable(false);
-                promotionTicket.setTicket(ticket);
-            }
-        }
-        promotionTicketRepository.save(promotionTicket);
-        return promotionTicket;
-    }
-
-    public PromotionTicket setUsedPromotionTicket(long promotionTicketId, Ticket ticket) {
-        PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(null);
-        if (promotionTicket != null) {
-            promotionTicket = setUsedPromotionTicket(promotionTicket, ticket);
-        }
-        return promotionTicket;
-    }
-
-    public PromotionTicket setUsedPromotionTicket(long promotionTicketId, long ticketId) {
-        PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(null);
-        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        if (promotionTicket != null && ticket != null) {
-            promotionTicket = setUsedPromotionTicket(promotionTicket, ticket);
-        }
-        return promotionTicket;
-    }
-
-    //set unUsed status
-    public PromotionTicket setUnUsedPromotionTicket(PromotionTicket promotionTicket) {
-        promotionTicket = reloadPromotionTicketStatus(promotionTicket);
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        if (promotionTicket.getExpiredDate().isAfter(thisMoment)) {
-            promotionTicket.setAvailable(true);
-            promotionTicket.setTicket(null);
-        } else {
-            promotionTicket.setTicket(null);
-        }
-        promotionTicketRepository.save(promotionTicket);
-        return promotionTicket;
-    }
-
-    public PromotionTicket setUnUsedPromotionTicket(long promotionTicketId) {
-        PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(new PromotionTicket());
-        if (promotionTicket != null) {
-            promotionTicket = setUnUsedPromotionTicket(promotionTicket);
-        }
-        return promotionTicket;
-    }
-
-    public List<PromotionTicket> setUnUsedPromotionTicketListFromTicket(Ticket ticket) {
-        List<PromotionTicket> promotionTicketList = promotionTicketRepository.findPromotionTicketsByTicketId(ticket.getId());
-        if (promotionTicketList != null) {
-            for (int i = 0; i < promotionTicketList.size(); i++) {
-                PromotionTicket promotionTicket = setUnUsedPromotionTicket(promotionTicketList.get(i));
-                promotionTicketList.set(i, promotionTicket);
-            }
-        }
-        return promotionTicketList;
-    }
-
-    //Ticket
-    //reload ticket status
-    public Ticket reloadTicketStatus(Ticket ticket) {
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        if (!ticket.isPurchased()) {
-            if (!ticket.isAvailable()) {
-                if (ticket.getReopenTime().isBefore(thisMoment)) {
-                    ticket.setBooking(null);
-                    ticket.setPassenger(null);
-                    ticket.setReopenTime(null);
-                    ticket.setAvailable(true);
-                    List<PromotionTicket> promotionTicketList = setUnUsedPromotionTicketListFromTicket(ticket);
+                if (paymentHistoryList.get(i) != null) {
+                    removeTicketFromPaymentHistory(paymentHistoryList.get(i));
                 }
             }
         }
+        ticket.setPaymentHistoryList(null);
+        return ticket;
+    }
+
+    //Remove All Promotion Ticket From Ticket
+    public Ticket removePromotionTicketListFromTicket(Ticket ticket) throws RuntimeException {
+        List<PromotionTicket> promotionTicketList = promotionTicketRepository.findPromotionTicketsByTicketId(ticket.getId());
+        if (promotionTicketList != null) {
+            for (int i = 0; i < promotionTicketList.size(); i++) {
+                if (promotionTicketList.get(i) != null) {
+                    setUnUsedPromotionTicket(promotionTicketList.get(i));
+                }
+            }
+        }
+        ticket.setPromotionTicketList(null);
+        return ticket;
+    }
+
+    //Reload Ticket Status
+    public Ticket reloadTicketStatus(Ticket ticket) {
+        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
         Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
         if (flight == null) {
             ticket.setAvailable(false);
         }
         if (flight.getDepartureTime().isBefore(thisMoment)) {
             ticket.setAvailable(false);
+        } else {
+            if (!ticket.isPurchased()) {
+                if (!ticket.isAvailable()) {
+                    if (ticket.getReopenTime().isBefore(thisMoment)) {
+                        ticket.setBooking(null);
+                        ticket.setPassenger(null);
+                        ticket.setReopenTime(null);
+                        ticket.setAvailable(true);
+                        ticket = removePromotionTicketListFromTicket(ticket);
+                    }
+                }
+            }
         }
         ticketRepository.save(ticket);
         return ticket;
     }
 
-    public Ticket reloadTicketStatus(long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        if (ticket != null) {
-            ticket = reloadTicketStatus(ticket);
-        }
-        return ticket;
-    }
-
-    //set unBooked ticket
+    //Set UnBooked Ticket
     public Ticket setUnBookedTicket(Ticket ticket) {
-        if (!ticket.isPurchased()) {
-            ticket.setBooking(null);
-            ticket.setPassenger(null);
-            ticket.setReopenTime(null);
-            ticket.setAvailable(true);
-            List<PromotionTicket> promotionTicketList = setUnUsedPromotionTicketListFromTicket(ticket);
-        }
+        ticket.setBooking(null);
+        ticket.setPassenger(null);
+        ticket.setReopenTime(null);
+        ticket.setAvailable(true);
+        ticket = removePromotionTicketListFromTicket(ticket);
         ticketRepository.save(ticket);
         return ticket;
     }
 
-    public Ticket setUnBookedTicket(long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        if (ticket != null) {
-            ticket = setUnBookedTicket(ticket);
-        }
-        return ticket;
-    }
-
-    //set booked ticket
+    //Set Booked Ticket
     public Ticket setBookedTicket(Ticket ticket, Booking booking) {
-        ticket = reloadTicketStatus(ticket);
         LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        if (!ticket.isPurchased()) {
-            ticket.setBooking(booking);
-            ticket.setAvailable(false);
-            ticket.setReopenTime(thisMoment.plusMinutes(10));
-        }
+        ticket.setBooking(booking);
+        ticket.setAvailable(false);
+        ticket.setReopenTime(thisMoment.plusMinutes(10));
         ticketRepository.save(ticket);
         booking.setBookTime(thisMoment);
         bookingRepository.save(booking);
         return ticket;
     }
 
-    //set purchased ticket
+    //Set Purchase Ticket
     public Ticket setPurchasedTicket(Ticket ticket) {
-        if (!ticket.isPurchased()) {
-            ticket.setPurchased(true);
-            ticket.setAvailable(false);
-            ticket.setReopenTime(null);
-        }
+        ticket.setPurchased(true);
+        ticket.setAvailable(false);
+        ticket.setReopenTime(null);
         ticketRepository.save(ticket);
         return ticket;
     }
 
-    public Ticket setPurchasedTicket(long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        if (ticket != null) {
-            setPurchasedTicket(ticket);
-        }
-        return ticket;
-    }
-
-    //set refund ticket
+    //Set Refund Ticket
     public Ticket setRefundTicket(Ticket ticket) {
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        if (ticket.isPurchased()) {
-            Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
-            ticket.setPurchased(false);
-            if (flight != null && flight.getDepartureTime().isAfter(thisMoment)) {
-                ticket.setAvailable(true);
-            }
-            ticket.setBooking(null);
-            ticket.setPassenger(null);
-            ticket.setReopenTime(null);
-            List<PromotionTicket> promotionTicketList = setUnUsedPromotionTicketListFromTicket(ticket);
-        }
+        ticket.setPurchased(false);
+        ticket.setAvailable(true);
+        ticket.setBooking(null);
+        ticket.setPassenger(null);
+        ticket.setReopenTime(null);
+        ticket = removePromotionTicketListFromTicket(ticket);
         ticketRepository.save(ticket);
         return ticket;
     }
 
-    public Ticket setRefundTicket(long ticketId) {
-        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        if (ticket != null) {
-            ticket = setRefundTicket(ticket);
-        }
+    //Clear RelationShip Of Ticket
+    public Ticket clearTicketRelationShip(Ticket ticket) {
+        ticket = removePromotionTicketListFromTicket(ticket);
+        ticket = removePaymentHistoryListFromTicket(ticket);
         return ticket;
     }
 
-    //clear ticket relationship on ticket
-    public void clearTicketRelationShip(Ticket ticket) {
-        List<PromotionTicket> promotionTicketList = setUnUsedPromotionTicketListFromTicket(ticket);
-        List<PaymentHistory> paymentHistoryList = removeAllPaymentHistoryFromTicket(ticket);
-    }
-
-    //reload ticket list
+    //Reload Ticket List
     public List<Ticket> reloadTicketListStatus(List<Ticket> ticketList) {
-        for (int i = 0; i < ticketList.size(); i++) {
-            Ticket ticket = reloadTicketStatus(ticketList.get(i));
-            ticketList.set(i, ticket);
+        if (ticketList != null) {
+            for (int i = 0; i < ticketList.size(); i++) {
+                if (ticketList.get(i) != null) {
+                    Ticket ticket = reloadTicketStatus(ticketList.get(i));
+                    ticketList.set(i, ticket);
+                }
+            }
         }
         return ticketList;
     }

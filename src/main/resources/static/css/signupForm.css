@@ -33,6 +33,15 @@
     justify-content: center;
     align-items: center;
 }
+.signup-error{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.signup-problem{
+    font-weight: bold;
+    font-size: 20px;
+}
 .element{
     margin-top: 15px;
     display: flex;

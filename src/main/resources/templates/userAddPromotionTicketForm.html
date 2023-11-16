@@ -10,76 +10,103 @@
 <body>
 <header class="header" th:replace="flight-management/fragments.html :: header"></header>
 <div class="container">
-    <div class="container card-box">
-        <div class="row">
-            <div class="col-lg-6">
+    <div class="custom-card-box">
+        <div class="row card-box">
+            <div class="col-lg-10 ticket-information">
                 <div class="row">
-                    <h5 class="my-option-name city">Departure City:</h5>
-                    <h5 class="city" th:text="${flight.departureCity}"></h5>
+                    <div class="col-lg-5">
+                        <div class="row">
+                            <h5 class="my-option-name city">Departure City:</h5>
+                            <h5 class="city" th:text="${flight.departureCity}"></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="row">
+                            <h5 class="my-option-name city">Arrival City:</h5>
+                            <h5 class="city" th:text="${flight.arrivalCity}"></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 time-box">
+                        <div class="row">
+                            <h5 class="my-option-name time">Departure Day:</h5>
+                            <h5 class="time"
+                                th:text="${muf.viewDayMonthYear(flight.departureTime)}"></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 time-box">
+                        <div class="row">
+                            <h5 class="my-option-name time">Arrival Day:</h5>
+                            <h5 class="time"
+                                th:text="${muf.viewDayMonthYear(flight.arrivalTime)}"></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 time-box">
+                        <div class="row">
+                            <h5 class="my-option-name time">Departure Time:</h5>
+                            <h5 class="time"
+                                th:text="${muf.viewHourMinute(flight.departureTime)}"></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 time-box">
+                        <div class="row">
+                            <h5 class="my-option-name time">Arrival Time:</h5>
+                            <h5 class="time"
+                                th:text="${muf.viewHourMinute(flight.arrivalTime)}"></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="row">
+                            <h5 class="my-option-name price">Current Price: </h5>
+                            <h5 class="price" th:text="${currentTicketPrice}+'$'"></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="row">
+                            <h5 class="my-option-name price">Original Price: </h5>
+                            <h5 class="price" th:text="${orignialPrice}+'$'"></h5>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="row">
-                    <h5 class="my-option-name city">Arrival City:</h5>
-                    <h5 class="city" th:text="${flight.arrivalCity}"></h5>
+            <div class="title-container">
+                <div class="title-box">
+                    <h4 class="title" th:text="'Promotion Ticket List (Price Reduction: '+${currentReduction}+'%)'"></h4>
+                </div>
+                <div class="row support">
+                    <div class="my-seat col-lg-6" th:text="'Cabin: '+${cabinName}"></div>
+                    <div class="my-seat col-lg-6" th:text="'Seat: '+${seatName}"></div>
                 </div>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="row">
-                    <h5 class="my-option-name time">Departure Time:</h5>
-                    <h5 class="time"
-                        th:text="${#temporals.format(#temporals.createDateTime(flight.departureTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="row">
-                    <h5 class="my-option-name time">Arrival Time:</h5>
-                    <h5 class="time"
-                        th:text="${#temporals.format(#temporals.createDateTime(flight.arrivalTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="row">
-                    <p class="my-option-name price">Economy Price: </p>
-                    <p class="price" th:text="${flight.ecnonomyPrice}+'$'"></p>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="row">
-                    <p class="my-option-name price">Business Price: </p>
-                    <p class="price" th:text="${flight.businessPrice}+'$'"></p>
+            <form class="form-box" th:action="@{/user/add-promotion-to-ticket}" method="post">
+                <input class="form-control" type="text" hidden="hidden" readonly th:value="${ticket.id}"
+                       name="ticketId">
+                <label class="label-title">Enter your promotion ticket code</label>
+                <input class="form-control input-box" type="text" name="promotionTicketCode">
+                <button class="btn-submit" type="submit">Add Promotion Ticket</button>
+            </form>
+            <div class="error" th:text="${promotionTicketUseResponse}"></div>
+            <div class="promotion-list">
+                <div th:if="${promotionTicketList != null}">
+                    <div th:each="promotionTicket : ${promotionTicketList}">
+                        <div class="row promotion-box">
+                            <div class="promotion-code" th:text="${promotionTicket.code}"></div>
+                            <a class="remove-link" th:href="@{/user/remove-promotion-from-ticket/{promotionTicketId}/{ticketId}(promotionTicketId=${promotionTicket.id}, ticketId=${ticket.id})}">
+                                <button class="btn-remove">Remove Promotion Ticket</button>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 </div>
-<div class="container">
-    <div th:text="'FlightID: '+${ticket.flight.id}"></div>
-    <div th:text="'From: '+${flight.departureCity}+' To: '+${flight.arrivalCity}"></div>
-    <div th:text="'Cabin: '+${}"></div>
-    <div th:text="'Seat: '+${ticket.seat.name}"></div>
-    <h4>Promotion Ticket List</h4>
-    <div th:if="${ticket.getPromotionTicketList()!=null}">
-        <div th:with="promotionTicketList=${ticket.getPromotionTicketList()}">
-            <div th:each="promotionTicket : ${promotionTicketList}">
-                <div th:text="${promotionTicket.code}"></div>
-                <button><a
-                        th:href="@{/user/remove-promotion-from-ticket/{promotionTicketId}/{ticketId}(promotionTicketId=${promotionTicket.id}, ticketId=${ticket.id})}">Remove
-                    this promotion code from ticket</a></button>
-            </div>
-        </div>
-    </div>
-    <form th:action="@{/user/add-promotion-to-ticket}" method="post">
-        <input type="text" hidden="hidden" readonly th:value="${ticket.id}" name="ticketId">
-        <label>Enter your promotion ticket code</label>
-        <input type="text" name="promotionTicketCode">
-        <div class="error" th:text="${error}"></div>
-        <button type="submit">Add</button>
-    </form>
-</div>
+
 </body>
 </html>

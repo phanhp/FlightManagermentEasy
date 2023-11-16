@@ -16,7 +16,7 @@ public class Seat {
     @Column(name = "name", nullable = false)
     private String name;
     @ManyToOne
-    @JoinColumn(name = "seat_row_id", nullable = false)
+    @JoinColumn(name = "seat_row_id")
     private SeatRow seatRow;
     @OneToMany(mappedBy = "seat", cascade = CascadeType.ALL)
     private List<Ticket> ticketList;

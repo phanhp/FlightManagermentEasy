@@ -16,9 +16,9 @@ public class City {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
     @ManyToOne
-    @JoinColumn(name = "country_id", nullable = false)
+    @JoinColumn(name = "country_id")
     private Country country;
-    @OneToMany(mappedBy = "city", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "city", cascade = CascadeType.ALL)
     private List<Airport> airportList;
 
     public City() {

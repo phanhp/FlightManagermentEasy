@@ -3,6 +3,7 @@ package com.example.FlightManagermentEasy.service.data.flight;
 import com.example.FlightManagermentEasy.entity.flight.aircraft.Aircraft;
 import com.example.FlightManagermentEasy.entity.flight.location.Route;
 import com.example.FlightManagermentEasy.service.MUF;
+import com.example.FlightManagermentEasy.service.service.flight.FlightService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,12 @@ import java.util.stream.Collectors;
 public class FlightData {
     @Autowired
     FlightDataFunction flightDataFunction;
+    @Autowired
+    MUF muf;
+    @Autowired
+    FlightService flightService;
 
     public void createFlightAndTicketData() {
-        MUF muf = new MUF();
-
         List<String> randomPriceListString = muf.toArrayString("100, 110, 120, 130, 140, 150");
         List<Double> randomPriceList = randomPriceListString.stream().map(Double::parseDouble).collect(Collectors.toList());
 
@@ -54,7 +57,8 @@ public class FlightData {
             flightDataFunction.createFlightAndTicketData(departureRoute, arrivalRoute, departureTime, arrivalTime, economyPrice, businessPrice, aircraftId);
             seatTime = seatTime.plusHours(1);
         }
-
-
+//        flightService.createFlightResult(1,1,100,
+//                "01/01/2024 18:00","01/01/2024 20:00",
+//                120, 150);
     }
 }

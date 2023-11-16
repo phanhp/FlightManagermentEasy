@@ -9,7 +9,7 @@ import java.util.List;
 @Table(name = "passengers")
 public class Passenger extends Person {
     @Column(name = "available")
-    private boolean available;
+    private boolean available = true;
     @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Ticket> ticketList;
 

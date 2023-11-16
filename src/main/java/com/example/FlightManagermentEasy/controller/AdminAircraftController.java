@@ -1,7 +1,6 @@
 package com.example.FlightManagermentEasy.controller;
 
 import com.example.FlightManagermentEasy.dto.flight.aircraft.AircraftDTO;
-import com.example.FlightManagermentEasy.entity.flight.aircraft.Aircraft;
 import com.example.FlightManagermentEasy.repository.flight.aircraft.AircraftRepository;
 import com.example.FlightManagermentEasy.repository.flight.aircraft.CabinRepository;
 import com.example.FlightManagermentEasy.repository.flight.aircraft.SeatRepository;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -68,19 +66,30 @@ public class AdminAircraftController {
         } else {
             previousPage = currentPage - 1;
         }
+
+        String deleteAircraftMessage = (String) session.getAttribute("deleteAircraftMessage");
+        model.addAttribute("deleteAircraftMessage", deleteAircraftMessage);
+
         model.addAttribute("totalPage", totalPage);
         model.addAttribute("nextPage", nextPage);
         model.addAttribute("previousPage", previousPage);
 
         commonModel.headerModel(model);
-        return "adminViewAircraft";
+        return "managerViewAircraft";
+    }
+
+    @GetMapping("/manager/create-aircraft-page")
+    public String createAircraftPage(Model model, HttpSession session){
+
+        return "managerCreateAircraft";
     }
 
     @GetMapping("/manager/delete-aircraft/{aircraftId}")
     public String adminDeleteAircraft(@PathVariable long aircraftId,
-                                      Model model) {
-        aircraftService.deleteAircraft(aircraftId);
-        return "redirect:/admin/view-aircraft-page";
+                                      HttpSession session) {
+        String result = aircraftService.deleteAircraftResult(aircraftId);
+        session.setAttribute("deleteAircraftMessage", result);
+        return "redirect:/manager/view-aircraft-page";
     }
 
 

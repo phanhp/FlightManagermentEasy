@@ -304,6 +304,10 @@ public class CommonModel {
         model.addAttribute("CUAccountError", CUAccountError);
         session.setAttribute("CUAccountError", "");
 
+        String signupConfirmError = (String) session.getAttribute("signupConfirmError");
+        model.addAttribute("signupConfirmError", signupConfirmError);
+        session.setAttribute("signupConfirmError", "");
+
         genderListModel(model);
         headerModel(model);
     }
@@ -426,11 +430,15 @@ public class CommonModel {
     public void cartPageModel(Model model, HttpSession session, Optional<Integer> page,
                               String ticketListPageTitle, Page<List<Ticket>> ticketListPage,
                               String cartPageUrlTitle, String cartPageUrl) {
-
+        model.addAttribute("promotionTicketRepository", promotionTicketRepository);
         model.addAttribute("aircraftService", aircraftService);
         model.addAttribute("flightService", flightService);
         model.addAttribute("ticketService", ticketService);
         model.addAttribute("bookingSession", bookingSession);
+
+        String paymentResult = (String) session.getAttribute("paymentResult");
+        model.addAttribute("paymentResult", paymentResult);
+        session.setAttribute("paymentResult", "");
 
         pageItemModel(model, session, page, ticketListPageTitle, ticketListPage, cartPageUrlTitle, cartPageUrl, "");
     }
@@ -467,6 +475,8 @@ public class CommonModel {
 
         String resultSearch = "Found " + flightList.size() + " flights";
         model.addAttribute("resultSearch", resultSearch);
+
+        model.addAttribute("muf", muf);
 
         pageItemModel(model, session, page, pageItemTitle, flightDTOPage, pageUrlTitle, basePageUrl, search);
         cityModel(model);

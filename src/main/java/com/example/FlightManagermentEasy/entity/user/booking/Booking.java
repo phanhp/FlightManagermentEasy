@@ -22,7 +22,7 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     private List<Ticket> ticketList;
 
     public Booking() {

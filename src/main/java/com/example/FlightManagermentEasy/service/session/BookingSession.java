@@ -1,18 +1,21 @@
 package com.example.FlightManagermentEasy.service.session;
 
-import com.example.FlightManagermentEasy.entity.MyTime;
+import com.example.FlightManagermentEasy.exception.InvalidDataException;
 import com.example.FlightManagermentEasy.entity.Ticket;
 import com.example.FlightManagermentEasy.entity.flight.Flight;
 import com.example.FlightManagermentEasy.entity.user.Account;
 import com.example.FlightManagermentEasy.entity.user.bank.BankAccount;
 import com.example.FlightManagermentEasy.entity.user.booking.Booking;
-import com.example.FlightManagermentEasy.repository.MyTimeRepository;
+import com.example.FlightManagermentEasy.entity.user.booking.PromotionTicket;
+
 import com.example.FlightManagermentEasy.repository.TicketRepository;
 import com.example.FlightManagermentEasy.repository.flight.FlightRepository;
 import com.example.FlightManagermentEasy.repository.flight.aircraft.SeatRepository;
 import com.example.FlightManagermentEasy.repository.user.booking.BookingRepository;
+
+import com.example.FlightManagermentEasy.repository.user.booking.PromotionTicketRepository;
+
 import com.example.FlightManagermentEasy.repository.user.user.AccountRepository;
-import com.example.FlightManagermentEasy.service.data.MyTimeData;
 import com.example.FlightManagermentEasy.service.service.TicketService;
 import com.example.FlightManagermentEasy.service.service.entityStatus.TicketStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +23,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.web.context.annotation.SessionScope;
 
-import java.sql.Array;
+import javax.naming.InsufficientResourcesException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -47,6 +50,8 @@ public class BookingSession {
     @Autowired
     TicketService ticketService;
     @Autowired
+    PromotionTicketRepository promotionTicketRepository;
+    @Autowired
     TicketStatus ticketStatus;
 
     private List<Ticket> nonPurchasedTicketList;
@@ -61,32 +66,12 @@ public class BookingSession {
 
     private BankAccount bankAccount;
 
-    //reload booking session
+
+    //RELOAD BOOKING SESSION
     public void reloadBookingSession() {
         if (loginSession.isLoggedIn()) {
             Account account = loginSession.getAccount();
             LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-
-            //nonPurchasedTicketList reload
-            List<Ticket> nonPurchasedTicketList = ticketRepository.findNonPurchaseTicketsByAccountId(account.getId());
-            if (nonPurchasedTicketList == null) {
-                nonPurchasedTicketList = new ArrayList<>();
-            }
-            this.nonPurchasedTicketList = ticketStatus.reloadTicketListStatus(nonPurchasedTicketList);
-
-            //purchasedTicketList reload
-            List<Ticket> purchasedTicketList = ticketRepository.findPurchasedTicketsByAccountId(account.getId());
-            if (purchasedTicketList == null) {
-                purchasedTicketList = new ArrayList<>();
-            }
-            this.purchasedTickedList = purchasedTicketList;
-
-            //flightedTicketList reload
-            List<Ticket> flightedTicketList = ticketRepository.findFlightedTicketsByAccountId(account.getId(), thisMoment);
-            if (flightedTicketList == null) {
-                flightedTicketList = new ArrayList<>();
-            }
-            this.flightedTicketList = ticketStatus.reloadTicketListStatus(flightedTicketList);
 
             //nonPurchasedBooking reload
             List<Booking> nonPurchasedBookingList = bookingRepository.findNonPurchasedBookingsByAccountId(account.getId());
@@ -104,6 +89,32 @@ public class BookingSession {
                 bookingRepository.save(nonPurchasedBooking);
                 this.nonPurchasedBooking = nonPurchasedBooking;
             }
+
+            //nonPurchasedTicketList reload
+            List<Ticket> nonPurchasedTicketList = ticketRepository.findNonPurchaseTicketsByAccountId(account.getId());
+            if (nonPurchasedTicketList == null) {
+                nonPurchasedTicketList = new ArrayList<>();
+            }
+            this.nonPurchasedTicketList = ticketStatus.reloadTicketListStatus(nonPurchasedTicketList);
+            for (int i = 0; i < this.nonPurchasedTicketList.size(); i++) {
+                Ticket ticket = this.nonPurchasedTicketList.get(i);
+                ticket.setBooking(this.nonPurchasedBooking);
+                ticketRepository.save(ticket);
+            }
+
+            //purchasedTicketList reload
+            List<Ticket> purchasedTicketList = ticketRepository.findPurchasedTicketsByAccountId(account.getId());
+            if (purchasedTicketList == null) {
+                purchasedTicketList = new ArrayList<>();
+            }
+            this.purchasedTickedList = purchasedTicketList;
+
+            //flightedTicketList reload
+            List<Ticket> flightedTicketList = ticketRepository.findFlightedTicketsByAccountId(account.getId(), thisMoment);
+            if (flightedTicketList == null) {
+                flightedTicketList = new ArrayList<>();
+            }
+            this.flightedTicketList = ticketStatus.reloadTicketListStatus(flightedTicketList);
 
             //purchasedBookingList reload
             List<Booking> purchasedBookingList = bookingRepository.findPurchasedBookingByAccountId(account.getId());
@@ -133,6 +144,9 @@ public class BookingSession {
     //Check Ticket Relationship with Account
     //is ticket purchased by this account
     public boolean isTicketPurchasedByThisAccount(Ticket ticket) {
+        if (ticket == null) {
+            return false;
+        }
         reloadBookingSession();
         if (loginSession.isLoggedIn()) {
             ticket = ticketStatus.reloadTicketStatus(ticket);
@@ -144,9 +158,8 @@ public class BookingSession {
                     return false;
                 } else if (account.getId() == loginSession.getAccount().getId()) {
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
         } else {
             return false;
@@ -164,6 +177,9 @@ public class BookingSession {
 
     //is ticket disable with this booking
     public boolean isTicketDisableWithThisBooking(Ticket ticket) {
+        if (ticket == null) {
+            return true;
+        }
         reloadBookingSession();
         if (loginSession.isLoggedIn()) {
             ticket = ticketStatus.reloadTicketStatus(ticket);
@@ -174,7 +190,8 @@ public class BookingSession {
                 return false;
             }
             if (!ticket.isAvailable()) {
-                if (ticket.getBooking().getId() == this.nonPurchasedBooking.getId()) {
+                Booking booking = bookingRepository.findBookingsByTicketId(ticket.getId());
+                if (booking.getId() == this.nonPurchasedBooking.getId()) {
                     return false;
                 }
             }
@@ -186,15 +203,14 @@ public class BookingSession {
 
     public boolean isTicketDisableWithThisBooking(long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        try {
-            return isTicketDisableWithThisBooking(ticket);
-        } catch (Exception e) {
-            return true;
-        }
+        return isTicketDisableWithThisBooking(ticket);
     }
 
     //is ticket belong this booking
     public boolean isTicketBelongThisBooking(Ticket ticket) {
+        if (ticket == null) {
+            return false;
+        }
         reloadBookingSession();
         if (loginSession.isLoggedIn()) {
             ticket = ticketStatus.reloadTicketStatus(ticket);
@@ -203,11 +219,12 @@ public class BookingSession {
             } else {
                 if (ticket.isAvailable()) {
                     return false;
-                } else if (ticket.getBooking().getId() == this.nonPurchasedBooking.getId()) {
-                    return true;
-                } else {
-                    return false;
                 }
+                Booking booking = bookingRepository.findBookingsByTicketId(ticket.getId());
+                if (booking.getId() == this.nonPurchasedBooking.getId()) {
+                    return true;
+                }
+                return false;
             }
         } else {
             return false;
@@ -222,6 +239,12 @@ public class BookingSession {
             return false;
         }
     }
+
+
+    //each time booking ticket from flight,
+//remove the previous selected seat that is not selected in this booking time
+//add new selected seat that is selected in this booking time
+//only effect on this flight id
 
     public boolean isFlightIdInNonPurchasedTicketList(long flightId) {
         reloadBookingSession();
@@ -239,50 +262,8 @@ public class BookingSession {
         }
     }
 
-    //each time booking ticket from flight,
-//remove the previous selected seat that is not selected in this booking time
-//add new selected seat that is selected in this booking time
-//only effect on this flight id
-    public void addListTicketToCartBySelectedId(List<Long> selectedTicketIdList, long flightId) {
-        reloadBookingSession();
-        if (loginSession.isLoggedIn()) {
-            Map<Long, List<Ticket>> ticketListMap = viewBookedTicketMap();
-            List<Ticket> ticketListWithFlightIdInCart;
-            List<Long> ticketIdListWithFlightIdInCart = new ArrayList<>();
-            if (isFlightIdInNonPurchasedTicketList(flightId)) {
-                ticketListWithFlightIdInCart = ticketListMap.get(flightId);
-                for (int i = 0; i < ticketListWithFlightIdInCart.size(); i++) {
-                    ticketIdListWithFlightIdInCart.add(ticketListWithFlightIdInCart.get(i).getId());
-                }
-            }
-            List<Long> removeTicketIdList = new ArrayList<>();
-            for (int i = 0; i < ticketIdListWithFlightIdInCart.size(); i++) {
-                if (!selectedTicketIdList.contains(ticketIdListWithFlightIdInCart.get(i))) {
-                    removeTicketIdList.add(ticketIdListWithFlightIdInCart.get(i));
-                }
-            }
-            for (int i = 0; i < removeTicketIdList.size(); i++) {
-                long ticketId = removeTicketIdList.get(i);
-                Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-                if (ticket != null) {
-                    if (!isTicketDisableWithThisBooking(ticket)) {
-                        ticket = ticketStatus.setUnBookedTicket(ticket);
-                    }
-                }
-            }
-            for (int i = 0; i < selectedTicketIdList.size(); i++) {
-                long ticketId = selectedTicketIdList.get(i);
-                Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-                if (ticket != null) {
-                    if (!isTicketDisableWithThisBooking(ticket)) {
-                        ticket = ticketStatus.setBookedTicket(ticket, this.nonPurchasedBooking);
-                    }
-                }
-            }
-        }
-    }
 
-    //Separate non-purchased ticket in list by flight id
+    //Separate Non-purchased Ticket In nonPurchasedTicketList To Map By flightId
     public Map<Long, List<Ticket>> viewBookedTicketMap() {
         reloadBookingSession();
         if (this.nonPurchasedTicketList.isEmpty()) {
@@ -300,18 +281,74 @@ public class BookingSession {
         return ticketMap;
     }
 
-    public int numberNonPurchasedTicket(){
-        if(this.nonPurchasedTicketList == null){
+    public void addListTicketToCartBySelectedId(List<Long> selectedTicketIdList, long flightId, long accountId) {
+        reloadBookingSession();
+        if (loginSession.isLoggedIn()) {
+            if (accountId == loginSession.getAccount().getId()) {
+                Map<Long, List<Ticket>> ticketListMap = viewBookedTicketMap();
+                List<Ticket> ticketListWithFlightIdInCart = new ArrayList<>();
+                //All Ticket In nonPurchasedList Of This flightId
+                List<Long> ticketIdListWithFlightIdInCart = new ArrayList<>();
+                if (isFlightIdInNonPurchasedTicketList(flightId)) {
+                    ticketListWithFlightIdInCart = ticketListMap.get(flightId);
+                    for (int i = 0; i < ticketListWithFlightIdInCart.size(); i++) {
+                        ticketIdListWithFlightIdInCart.add(ticketListWithFlightIdInCart.get(i).getId());
+                    }
+                }
+                //All Tickets Those Were Remove From Booking This Time
+                List<Long> removeTicketIdList = new ArrayList<>();
+                for (int i = 0; i < ticketIdListWithFlightIdInCart.size(); i++) {
+                    if (!selectedTicketIdList.contains(ticketIdListWithFlightIdInCart.get(i))) {
+                        removeTicketIdList.add(ticketIdListWithFlightIdInCart.get(i));
+                    }
+                }
+                for (int i = 0; i < removeTicketIdList.size(); i++) {
+                    long ticketId = removeTicketIdList.get(i);
+                    Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+                    if (ticket != null) {
+                        if (!isTicketDisableWithThisBooking(ticket)) {
+                            unBookTicketResult(ticket);
+                        }
+                    }
+                }
+                for (int i = 0; i < selectedTicketIdList.size(); i++) {
+                    long ticketId = selectedTicketIdList.get(i);
+                    Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+                    if (ticket != null) {
+                        if (!isTicketDisableWithThisBooking(ticket)) {
+                            bookTicketResult(ticket);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public int numberNonPurchasedTicket() {
+        if (this.nonPurchasedTicketList == null) {
             return 0;
         }
         return this.nonPurchasedTicketList.size();
+    }
+
+    public int numberPurchasedTicket() {
+        if (this.purchasedTickedList == null) {
+            return 0;
+        }
+        return this.purchasedTickedList.size();
+    }
+
+    public int numberFlightedTicket() {
+        if (this.flightedTicketList == null) {
+            return 0;
+        }
+        return this.flightedTicketList.size();
     }
 
     public Page<List<Ticket>> viewBookedTicketListPage(Pageable pageable) {
         Map<Long, List<Ticket>> ticketListMap = viewBookedTicketMap();
         return convertTicketListMapToPage(ticketListMap, pageable);
     }
-
 
     //Separate purchased ticket in list by flight id
     public Map<Long, List<Ticket>> viewPurchasedTicketMap() {
@@ -353,107 +390,209 @@ public class BookingSession {
         return flight.getId();
     }
 
-
-    //purchase ticket
-    //purchase single ticket
-    public boolean isReadyForTransaction() {
-        if (loginSession.isLoggedIn()) {
-            reloadBookingSession();
-            BankAccount bankAccount = this.bankAccount;
-            if (bankAccount == null) {
-                return false;
-            }
-            return true;
-        } else {
-            return false;
+    //************************ TICKET BOOKING **************************************
+    public Ticket bookTicket(Ticket ticket) throws InvalidDataException {
+        if (!loginSession.isLoggedIn()) {
+            throw new InvalidDataException("Not Login Yet");
         }
-    }
-
-    public boolean isTicketReadyForTransaction(Ticket ticket) {
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
+        if (ticket == null) {
+            throw new InvalidDataException("Ticket Can Not Be Found");
+        }
+        reloadBookingSession();
+        ticket = ticketStatus.reloadTicketStatus(ticket);
+        if (ticket.isPurchased()) {
+            throw new InvalidDataException("Can Not Book A Purchased Ticket");
+        }
         Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
         if (flight == null) {
-            return false;
+            throw new InvalidDataException("Flight Can Not Be Found");
         }
+        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
         if (flight.getDepartureTime().isBefore(thisMoment)) {
-            return false;
+            throw new InvalidDataException("Ticket Can Not Be Unbooked Because The Flight Was Performed");
         }
-        return true;
+        if (!ticket.isAvailable()) {
+            throw new InvalidDataException("Ticket Is Not Available Now");
+        }
+        if (this.nonPurchasedBooking == null) {
+            this.nonPurchasedBooking = new Booking();
+            bookingRepository.save(this.nonPurchasedBooking);
+        }
+        ticket = ticketStatus.setBookedTicket(ticket, this.nonPurchasedBooking);
+        return ticket;
     }
 
-    public boolean isTicketReadyForTransaction(long ticketId) {
+    public String bookTicketResult(Ticket ticket) {
+        try {
+            ticket = bookTicket(ticket);
+            return "Book Ticket Successfully";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    public String bookTicketResult(long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+        return bookTicketResult(ticket);
+    }
+
+    public Ticket unbookedTicket(Ticket ticket) throws InvalidDataException {
+        if (!loginSession.isLoggedIn()) {
+            throw new InvalidDataException("Not Login Yet");
+        }
         if (ticket == null) {
-            return false;
+            throw new InvalidDataException("Ticket Can Not Be Found");
         }
-        return isTicketReadyForTransaction(ticket);
+        reloadBookingSession();
+        ticket = ticketStatus.reloadTicketStatus(ticket);
+        if (ticket.isPurchased()) {
+            throw new InvalidDataException("Can Not Unbooked A Purchased Ticket");
+        }
+        Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
+        if (flight == null) {
+            throw new InvalidDataException("Flight Can Not Be Found");
+        }
+        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
+        if (flight.getDepartureTime().isBefore(thisMoment)) {
+            throw new InvalidDataException("Ticket Can Not Be Unbooked Because The Flight Was Performed");
+        }
+        if (!isTicketBelongThisBooking(ticket)) {
+            throw new InvalidDataException("This Ticket Is Not Belong To You");
+        }
+        ticket = ticketStatus.setUnBookedTicket(ticket);
+        return ticket;
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public boolean purchaseSingleTicket(long ticketId) {
-        if (isReadyForTransaction()) {
-            if (isTicketReadyForTransaction(ticketId)) {
-                LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-                BankAccount bankAccount = this.bankAccount;
-                Account account = loginSession.getAccount();
-                Ticket ticket = ticketRepository.findById(ticketId).get();
-                Booking booking = new Booking(thisMoment, true, account);
-                bookingRepository.save(booking);
-                try {
-                    ticket.setBooking(booking);
-                    ticket = ticketService.purchaseTicket(ticket, bankAccount);
-                    return true;
-                } catch (Exception e) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+    public String unBookTicketResult(Ticket ticket) {
+        try {
+            ticket = unbookedTicket(ticket);
+            return "Unbooked Ticket";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
         }
     }
 
-    //purchase all ticket in non purchase ticket list
-    @Transactional(rollbackFor = Exception.class)
-    public boolean purchaseAllTicketInCart() {
+    public String unBookTicketResult(long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+        return unBookTicketResult(ticket);
+    }
+
+    //**************************** TICKET PURCHASE AND REFUND ***********************************
+    public String purchaseTicketResult(long ticketId) {
+        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
+        BankAccount bankAccount = this.bankAccount;
+        Account account = loginSession.getAccount();
+        Ticket ticket = ticketRepository.findById(ticketId).get();
+        Booking booking = new Booking(thisMoment, true, account);
+        bookingRepository.save(booking);
+        try {
+            ticket.setBooking(booking);
+            ticket = ticketService.purchaseTicket(ticket, bankAccount);
+            return "Ticket Purchased Successfully";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        } catch (InsufficientResourcesException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    public String purchaseAllTicketResult() {
         List<Ticket> ticketList = this.nonPurchasedTicketList;
-        if (isReadyForTransaction()) {
-            BankAccount bankAccount = this.bankAccount;
+        BankAccount bankAccount = this.bankAccount;
+        for (int i = 0; i < ticketList.size(); i++) {
             try {
-                for (int i = 0; i < ticketList.size(); i++) {
-                    if (isTicketReadyForTransaction(ticketList.get(i))) {
-                        Ticket ticket = ticketService.purchaseTicket(ticketList.get(i), bankAccount);
-                    }
-                }
-                this.nonPurchasedBooking.setPurchased(true);
-                bookingRepository.save(this.nonPurchasedBooking);
-                return true;
-            } catch (Exception e) {
-                return false;
+                Ticket ticket = ticketService.purchaseTicket(ticketList.get(i), bankAccount);
+            } catch (InvalidDataException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (InsufficientResourcesException e) {
+                e.printStackTrace();
+                return e.getMessage();
             }
-        } else {
-            return false;
+        }
+        this.nonPurchasedBooking.setPurchased(true);
+        bookingRepository.save(this.nonPurchasedBooking);
+        return "All Tickets Purchased Successfully";
+    }
+
+    public String refundTicketResult(long ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId).get();
+        try {
+            ticket = ticketService.refundTicket(ticket, 0.7);
+            return "Ticket Refunded, Check Your Bank Account";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        } catch (InsufficientResourcesException e) {
+            e.printStackTrace();
+            return e.getMessage();
         }
     }
 
-    //refund ticket
-    @Transactional(rollbackFor = Exception.class)
-    public boolean refundTicket(long ticketId) {
-        if (isReadyForTransaction()) {
-            if (isTicketReadyForTransaction(ticketId)) {
-                Ticket ticket = ticketRepository.findById(ticketId).get();
-                try {
-                    ticket = ticketService.refundTicket(ticket, 0.7);
-                    return true;
-                } catch (Exception e) {
-                    return false;
-                }
-            } else {
-                return false;
+    //************************** PASSENGER *********************************
+    public String setPassengerToTicketResult(long ticketId, String identity, String name,
+                                             String address, String dob, String gender) {
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+        if (isTicketBelongThisBooking(ticket)) {
+            try {
+                ticketService.setPassengerToTicket(ticket, identity, name, address, dob, gender);
+                return "Passenger Set Successfully";
+            } catch (InvalidDataException e) {
+                e.printStackTrace();
+                return e.getMessage();
             }
-        } else {
-            return false;
         }
+        if (isTicketPurchasedByThisAccount(ticket)) {
+            try {
+                ticketService.setPassengerToTicket(ticket, identity, name, address, dob, gender);
+                return "Passenger Set Successfully";
+            } catch (InvalidDataException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }
+        return "Passenger Set Fail, Try Again";
+    }
+
+    //**************************** PROMOTION TICKET *******************************
+    public String usePromotionTicketResult(PromotionTicket promotionTicket, Ticket ticket) {
+        try {
+            ticketService.usePromotionTicket(promotionTicket, ticket);
+            return "Add Promotion Ticket Success";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    public String usePromotionTicketResult(long promotionTicketId, long ticketId) {
+        PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(null);
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+        return usePromotionTicketResult(promotionTicket, ticket);
+    }
+
+    public String usePromotionTicketResult(String promotionTicketCode, long ticketId) {
+        PromotionTicket promotionTicket = promotionTicketRepository.findPromotionTicketByCode(promotionTicketCode);
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+        return usePromotionTicketResult(promotionTicket, ticket);
+    }
+
+    public String unUsedPromotionTicket(PromotionTicket promotionTicket) {
+        try {
+            ticketService.unUsedPromotionTicket(promotionTicket);
+            return "Promotion Ticket Unused Success";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    public String unUsedPromotionTicket(long promotionTicketId) {
+        PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(null);
+        return unUsedPromotionTicket(promotionTicket);
     }
 }

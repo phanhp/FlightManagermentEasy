@@ -43,9 +43,9 @@ public class TokenService {
     }
 
     public MyToken setAccountToken(long accountId, String name, String dob, String address,
-                                 String identity, String gender, String username,
-                                 String password, String email, String phone,
-                                 MultipartFile profileImage, String createTime) {
+                                   String identity, String gender, String username,
+                                   String password, String email, String phone,
+                                   MultipartFile profileImage, String createTime) {
         String image = new String();
         if (profileImage != null) {
             if (!profileImage.isEmpty()) {
@@ -82,7 +82,7 @@ public class TokenService {
         return accountInformation;
     }
 
-    public Map<String, String> getAccountInformationMapInToken(MyToken token){
+    public Map<String, String> getAccountInformationMapInToken(MyToken token) {
         List<String> accountInformation = getAccountInformationInToken(token);
         Map<String, String> accountInformationMap = new HashMap<>();
         accountInformationMap.put("id", accountInformation.get(0));

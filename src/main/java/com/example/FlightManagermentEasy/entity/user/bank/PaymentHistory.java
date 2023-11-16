@@ -20,10 +20,10 @@ public class PaymentHistory {
     private LocalDateTime time;
     @Column(name = "amount")
     private double amount;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "source_account_id")
     private BankAccount sourceAccount;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "receive_account_id")
     private BankAccount receiveAccount;
     @ManyToOne

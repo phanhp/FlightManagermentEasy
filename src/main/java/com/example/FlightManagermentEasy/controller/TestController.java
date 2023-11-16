@@ -1,6 +1,8 @@
 package com.example.FlightManagermentEasy.controller;
 
+import com.example.FlightManagermentEasy.dto.flight.FlightDTO;
 import com.example.FlightManagermentEasy.entity.MyToken;
+import com.example.FlightManagermentEasy.entity.Ticket;
 import com.example.FlightManagermentEasy.entity.user.Account;
 import com.example.FlightManagermentEasy.repository.MyTimeRepository;
 import com.example.FlightManagermentEasy.repository.TestEntityRepository;
@@ -34,6 +36,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.context.Context;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -98,19 +101,14 @@ public class TestController {
 
     @GetMapping("/test")
     public String test(Model model) {
-        model.addAttribute("encodeKey", "123");
-        model.addAttribute("gender", "gay");
-        model.addAttribute("name", "Fucker");
+        Ticket ticket = ticketRepository.findById(Long.valueOf(9999)).orElse(null);
+        ticketStatus.setPurchasedTicket(ticket);
         return "emailConfirmTemplate";
     }
 
     @PostMapping("/test-post/{encodeKey}")
     public String testPost(@PathVariable("encodeKey") String encodeKey){
-        System.out.println("Your Encode Key Is: "+encodeKey);
-        System.out.println("Mail Confirm Successfully......");
-        MyToken token = myTokenRepository.findMyTokenByEncodeKey(encodeKey);
-        myTokenRepository.delete(token);
-        System.out.println("Token Was Delete After Submit, Check DataBase");
+
         return "redirect:/";
     }
 }

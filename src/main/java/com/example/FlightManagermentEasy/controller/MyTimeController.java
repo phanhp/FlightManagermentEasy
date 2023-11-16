@@ -30,7 +30,7 @@ public class MyTimeController {
         model.addAttribute("hour", hour);
         model.addAttribute("minute", minute);
         model.addAttribute("second", second);
-        return "flight-management/myTimeForm";
+        return "myTime";
     }
 
     @PostMapping("/flight-management/mytime-update")

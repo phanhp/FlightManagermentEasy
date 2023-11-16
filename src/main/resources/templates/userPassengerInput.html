@@ -12,7 +12,8 @@
 <div class="container">
     <div class="card">
         <form th:action="@{/user/passenger-register}" method="post" th:object="${passenger}">
-            <div class="title" th:text="'Seat: '+${ticket.seat.name}"></div>
+            <div class="title" th:text="'Cabin: '+${ticketService.findCabinNameByTicketId(ticket.id)}"></div>
+            <div class="title" th:text="'Seat: '+${ticketService.findSeatNameByTicketId(ticket.id)}"></div>
             <input type="number" readonly th:value="${ticket.id}" hidden="hidden" name="ticketId">
 
             <div class="row element">

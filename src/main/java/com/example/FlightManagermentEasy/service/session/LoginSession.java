@@ -2,11 +2,14 @@ package com.example.FlightManagermentEasy.service.session;
 
 import com.example.FlightManagermentEasy.entity.user.Account;
 import com.example.FlightManagermentEasy.entity.user.AccountRole;
+import com.example.FlightManagermentEasy.exception.InvalidDataException;
 import com.example.FlightManagermentEasy.repository.user.user.AccountRepository;
 import com.example.FlightManagermentEasy.repository.user.user.AccountRoleRepository;
 import com.example.FlightManagermentEasy.repository.user.user.RoleRepository;
 import com.example.FlightManagermentEasy.service.service.user.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,14 +96,26 @@ public class LoginSession {
     }
 
     public void updateProfile(String username, String password, String name, String email, String identity,
-                              String phone, String address, String dob, String gender, MultipartFile profileImage) throws IOException, RuntimeException {
+                              String phone, String address, String dob, String gender, MultipartFile profileImage) throws IOException, InvalidDataException {
         try {
             this.account = accountService.signupAndUpdateAccount(username, password, name, email, identity, phone, address, dob, gender, profileImage, this.account);
         } catch (IOException e) {
-            throw new IOException();
-        } catch (RuntimeException e) {
-            throw new RuntimeException();
+            throw new IOException(e.getMessage());
+        } catch (InvalidDataException e) {
+            throw new InvalidDataException(e.getMessage());
         }
+    }
+
+    public void updatePassword (String newPassword) throws InvalidDataException{
+        if (newPassword == null){
+            throw new InvalidDataException("Password Can Not Be Null");
+        }
+        if (newPassword.length()<3){
+            throw new InvalidDataException("Password Can Not Be Shorter Than 3");
+        }
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        this.account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(this.account);
     }
 
     public String getProfileImage() throws IOException {

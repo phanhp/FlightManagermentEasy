@@ -3,6 +3,7 @@ package com.example.FlightManagermentEasy.service.service.user;
 import com.example.FlightManagermentEasy.entity.user.Account;
 import com.example.FlightManagermentEasy.entity.user.AccountRole;
 import com.example.FlightManagermentEasy.entity.user.Role;
+import com.example.FlightManagermentEasy.exception.InvalidDataException;
 import com.example.FlightManagermentEasy.repository.user.user.AccountRepository;
 import com.example.FlightManagermentEasy.repository.user.user.AccountRoleRepository;
 import com.example.FlightManagermentEasy.repository.user.user.RoleRepository;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,130 +38,242 @@ public class AccountService {
     public Account signupAndUpdateAccount(String username, String password, String name,
                                           String email, String identity, String phone,
                                           String address, String dob, String gender,
-                                          MultipartFile profileImage, Account account) throws IOException, RuntimeException {
+                                          String profileImage, Account account) throws IOException, InvalidDataException {
+        System.out.println("c1");
+        if (username == null) {
+            throw new InvalidDataException("UserName Must Be Filled");
+        }
+        System.out.println("c2");
+        if (username.isEmpty()) {
+            throw new InvalidDataException("UserName Must Be Filled");
+        }
+        System.out.println("c3");
+        if (password == null) {
+            throw new InvalidDataException("PassWord Must Be Filled");
+        }
+        System.out.println("c4");
+        if (password.length() < 3) {
+            throw new InvalidDataException("PassWord Must Be Longer Than 3");
+        }
+        System.out.println("c5");
+        if (email == null) {
+            throw new InvalidDataException("Email Must Be Filled");
+        }
+        System.out.println("c6");
+        if (email.isEmpty()) {
+            throw new InvalidDataException("Email Must Be Filled");
+        }
+        System.out.println("c7");
+        if (identity == null) {
+            throw new InvalidDataException("Identity Must Be Filled");
+        }
+        System.out.println("c8");
+        if (identity.isEmpty()) {
+            throw new InvalidDataException("Identity Must Be Filled");
+        }
+        if (account == null) {
+            account = new Account();
+        }
         List<Account> accountList = new ArrayList<>();
-        if (username != null) {
-            if (!username.isEmpty()) {
-                accountList = accountRepository.findAll();
-            }
-        }
-        if (accountList.isEmpty()) {
-            if (email != null) {
-                if (!email.isEmpty()) {
-                    accountList = accountRepository.findAll();
-                }
-            }
-        }
-        if (accountList.isEmpty()) {
-            if (identity != null) {
-                if (!identity.isEmpty()) {
-                    accountList = accountRepository.findAll();
-                }
-            }
-        }
-        if (username != null) {
-            if (!username.isEmpty()) {
-                String check = account.getAccountName();
-                if (check != null) {
-                    if (!check.isEmpty()) {
-                        if (!check.equals(username)) {
-                            List<String> accountNameList = accountList.stream().map(Account::getAccountName).collect(Collectors.toList());
-                            if (!accountNameList.contains(username)) {
-                                account.setAccountName(username);
-                            } else {
-                                throw new RuntimeException();
-                            }
-                        }
-                    } else {
-                        List<String> accountNameList = accountList.stream().map(Account::getAccountName).collect(Collectors.toList());
-                        if (!accountNameList.contains(username)) {
-                            account.setAccountName(username);
-                        } else {
-                            throw new RuntimeException();
-                        }
-                    }
+        accountList = accountRepository.findAll();
+
+        System.out.println("1");
+        String checkAccountName = account.getAccountName();
+        List<String> accountNameList = accountList.stream().map(Account::getAccountName).collect(Collectors.toList());
+        if (checkAccountName != null) {
+            if (!checkAccountName.equals(username)) {
+                if (!accountNameList.contains(username)) {
+                    account.setAccountName(username);
                 } else {
-                    List<String> accountNameList = accountList.stream().map(Account::getAccountName).collect(Collectors.toList());
-                    if (!accountNameList.contains(username)) {
-                        account.setAccountName(username);
-                    } else {
-                        throw new RuntimeException();
-                    }
+                    throw new InvalidDataException("Username Was Used By Another Account");
                 }
             }
-        }
-        if (password != null) {
-            if (password.length() >= 3) {
-                PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-                account.setPassword(passwordEncoder.encode(password));
+        } else {
+            if (!accountNameList.contains(username)) {
+                account.setAccountName(username);
+            } else {
+                throw new InvalidDataException("Username Was Used By Another Account");
             }
         }
-        if (name != null) {
-            System.out.println(name);
-            if (!name.isEmpty()) {
-                account.setName(name);
-            }
-        }
-        if (email != null) {
-            if (!email.isEmpty()) {
-                String check = account.getEmail();
-                if (check != null) {
-                    if (!check.isEmpty()) {
-                        if (!check.equals(email)) {
-                            List<String> emailList = accountList.stream().map(Account::getEmail).collect(Collectors.toList());
-                            if (!emailList.contains(email)) {
-                                account.setEmail(email);
-                            } else {
-                                throw new RuntimeException();
-                            }
-                        }
-                    } else {
-                        List<String> emailList = accountList.stream().map(Account::getEmail).collect(Collectors.toList());
-                        if (!emailList.contains(email)) {
-                            account.setEmail(email);
-                        } else {
-                            throw new RuntimeException();
-                        }
-                    }
+
+        System.out.println("2");
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        account.setPassword(passwordEncoder.encode(password));
+
+        account.setName(name);
+
+        System.out.println("3");
+        String checkEmail = account.getEmail();
+        List<String> emailList = accountList.stream().map(Account::getEmail).collect(Collectors.toList());
+        if (checkEmail != null) {
+            if (!checkEmail.equals(email)) {
+                if (!emailList.contains(email)) {
+                    account.setEmail(email);
                 } else {
-                    List<String> emailList = accountList.stream().map(Account::getEmail).collect(Collectors.toList());
-                    if (!emailList.contains(email)) {
-                        account.setEmail(email);
-                    } else {
-                        throw new RuntimeException();
-                    }
+                    throw new InvalidDataException("Email Was Used By Another Account");
+                }
+            }
+        } else {
+            if (!emailList.contains(email)) {
+                account.setEmail(email);
+            } else {
+                throw new InvalidDataException("Email Was Used By Another Account");
+            }
+        }
+
+        System.out.println("4");
+        String checkIdentity = account.getIdentity();
+        List<String> identityList = accountList.stream().map(Account::getIdentity).collect(Collectors.toList());
+        if (checkIdentity != null) {
+            if (!checkIdentity.equals(identity)) {
+                if (!identityList.contains(identity)) {
+                    account.setIdentity(identity);
+                } else {
+                    throw new InvalidDataException("Identity Was Used By Another Account");
+                }
+            }
+        } else {
+            if (!identityList.contains(identity)) {
+                account.setIdentity(identity);
+            } else {
+                throw new InvalidDataException("Identity Was Used By Another Account");
+            }
+        }
+
+        if (phone != null) {
+            account.setPhone(phone);
+        }
+        if (address != null) {
+            account.setAddress(address);
+        }
+        if (dob != null) {
+            account.setDob(muf.stringToLocalDate(dob));
+        }
+        if (gender != null) {
+            account.setGender(gender);
+        }
+        if (profileImage != null) {
+            if (!profileImage.isEmpty()) {
+                try {
+                    byte[] imgData = Base64.getDecoder().decode(profileImage);
+                    Blob image = new SerialBlob(imgData);
+                    account.setImage(image);
+                } catch (Exception e) {
+                    throw new IOException();
                 }
             }
         }
-        if (identity != null) {
-            if (!identity.isEmpty()) {
-                String check = account.getIdentity();
-                if (check != null) {
-                    if (!check.isEmpty()) {
-                        if (!check.equals(identity)) {
-                            List<String> identityList = accountList.stream().map(Account::getIdentity).collect(Collectors.toList());
-                            if (!identityList.contains(identity)) {
-                                account.setIdentity(identity);
-                            } else {
-                                throw new RuntimeException();
-                            }
-                        }
-                    } else {
-                        List<String> identityList = accountList.stream().map(Account::getIdentity).collect(Collectors.toList());
-                        if (!identityList.contains(identity)) {
-                            account.setIdentity(identity);
-                        } else {
-                            throw new RuntimeException();
-                        }
-                    }
+        System.out.println("save");
+        accountRepository.save(account);
+        if (!isUser(account)) {
+            Role user = roleRepository.findRoleByName("user");
+            AccountRole accountRole = new AccountRole(account, user);
+            accountRoleRepository.save(accountRole);
+        }
+        return account;
+    }
+
+    public Account signupAndUpdateAccount(String username, String password, String name,
+                                          String email, String identity, String phone,
+                                          String address, String dob, String gender,
+                                          MultipartFile profileImage, Account account) throws IOException, InvalidDataException {
+        System.out.println("c1");
+        if (username == null) {
+            throw new InvalidDataException("UserName Must Be Filled");
+        }
+        System.out.println("c2");
+        if (username.isEmpty()) {
+            throw new InvalidDataException("UserName Must Be Filled");
+        }
+        System.out.println("c3");
+        if (password == null) {
+            throw new InvalidDataException("PassWord Must Be Filled");
+        }
+        System.out.println("c4");
+        if (password.length() < 3) {
+            throw new InvalidDataException("PassWord Must Be Longer Than 3");
+        }
+        System.out.println("c5");
+        if (email == null) {
+            throw new InvalidDataException("Email Must Be Filled");
+        }
+        System.out.println("c6");
+        if (email.isEmpty()) {
+            throw new InvalidDataException("Email Must Be Filled");
+        }
+        System.out.println("c7");
+        if (identity == null) {
+            throw new InvalidDataException("Identity Must Be Filled");
+        }
+        System.out.println("c8");
+        if (identity.isEmpty()) {
+            throw new InvalidDataException("Identity Must Be Filled");
+        }
+        if (account == null) {
+            account = new Account();
+        }
+        List<Account> accountList = new ArrayList<>();
+        accountList = accountRepository.findAll();
+
+        System.out.println("c9");
+        String checkAccountName = account.getAccountName();
+        List<String> accountNameList = accountList.stream().map(Account::getAccountName).collect(Collectors.toList());
+        if (checkAccountName != null) {
+            if (!checkAccountName.equals(username)) {
+                if (!accountNameList.contains(username)) {
+                    account.setAccountName(username);
                 } else {
-                    List<String> identityList = accountList.stream().map(Account::getIdentity).collect(Collectors.toList());
-                    if (!identityList.contains(identity)) {
-                        account.setIdentity(identity);
-                    } else {
-                        throw new RuntimeException();
-                    }
+                    throw new InvalidDataException("Username Was Used By Another Account");
                 }
+            }
+        } else {
+            if (!accountNameList.contains(username)) {
+                account.setAccountName(username);
+            } else {
+                throw new InvalidDataException("Username Was Used By Another Account");
+            }
+        }
+
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        account.setPassword(passwordEncoder.encode(password));
+
+        account.setName(name);
+
+        System.out.println("c10");
+        String checkEmail = account.getEmail();
+        List<String> emailList = accountList.stream().map(Account::getEmail).collect(Collectors.toList());
+        if (checkEmail != null) {
+            if (!checkEmail.equals(email)) {
+                if (!emailList.contains(email)) {
+                    account.setEmail(email);
+                } else {
+                    throw new InvalidDataException("Email Was Used By Another Account");
+                }
+            }
+        } else {
+            if (!emailList.contains(email)) {
+                account.setEmail(email);
+            } else {
+                throw new InvalidDataException("Email Was Used By Another Account");
+            }
+        }
+
+        System.out.println("c11");
+        String checkIdentity = account.getIdentity();
+        List<String> identityList = accountList.stream().map(Account::getIdentity).collect(Collectors.toList());
+        if (checkIdentity != null) {
+            if (!checkIdentity.equals(identity)) {
+                if (!identityList.contains(identity)) {
+                    account.setIdentity(identity);
+                } else {
+                    throw new InvalidDataException("Identity Was Used By Another Account");
+                }
+            }
+        } else {
+            if (!identityList.contains(identity)) {
+                account.setIdentity(identity);
+            } else {
+                throw new InvalidDataException("Identity Was Used By Another Account");
             }
         }
         if (phone != null) {
@@ -214,16 +328,30 @@ public class AccountService {
         return account;
     }
 
-    public void updateAccountImage(MultipartFile profileImage, long accountId) throws IOException {
-        Account account = accountRepository.findById(accountId).orElse(null);
-        if (account != null) {
-            try {
-                updateAccountImage(profileImage, account);
-            } catch (IOException e) {
-                throw new IOException();
-            }
+    public String[] getInformationFromEmail(String email) throws InvalidDataException {
+        if (email == null) {
+            throw new InvalidDataException("Email Can Not Be Empty");
         }
+        if (email.isEmpty()) {
+            throw new InvalidDataException("Email Can Not Be Empty");
+        }
+        Account account = accountRepository.findAccountByEmail(email);
+        if (account == null) {
+            throw new InvalidDataException("Can Not Find Email From This Account, Input Another Email");
+        }
+        String newPassword = muf.generateRandomKeyInSet(new HashSet<>(), 10);
+        String accountName = account.getAccountName();
+        String name = account.getName();
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+        String[] inforArray = new String[3];
+        inforArray[0] = accountName;
+        inforArray[1] = name;
+        inforArray[2] = newPassword;
+        return inforArray;
     }
+
 
     public boolean isUser(Account account) {
         List<AccountRole> accountRoleList = account.getAccountRoleList();
@@ -269,4 +397,43 @@ public class AccountService {
             return false;
         }
     }
+
+    //******************* REMOVE AUTHORITY **********************************
+    public void removeManager(Account admin, Account manager) throws InvalidDataException {
+        if (admin == null) {
+            throw new InvalidDataException("Only Admin Can Use This Function");
+        }
+        if (!isAdmin(admin)) {
+            throw new InvalidDataException("Only Admin Can Use This Function");
+        }
+        if (manager == null) {
+            throw new InvalidDataException("Manager Account Can Not Be Found");
+        }
+        if (!isManager(manager)) {
+            throw new InvalidDataException("This Funcation Is Use For Remove Authority Of Manager, Can Not Be Used For Other Account");
+        }
+        List<AccountRole> accountRoleList = manager.getAccountRoleList();
+        for (int i = 0; i < accountRoleList.size(); i++) {
+            if (accountRoleList.get(i).getRole().getName().equals("manager")) {
+                accountRoleRepository.delete(accountRoleList.get(i));
+            }
+        }
+    }
+
+    public String removeManagerResult(Account admin, Account manager) {
+        try {
+            removeManager(admin, manager);
+            return "Manager Remove Successfully";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
+    }
+
+    public String removeManagerResult(long adminId, long managerId) {
+        Account admin = accountRepository.findById(adminId).orElse(null);
+        Account manager = accountRepository.findById(managerId).orElse(null);
+        return removeManagerResult(admin, manager);
+    }
+
 }

@@ -2,6 +2,7 @@ package com.example.FlightManagermentEasy.service.service.user;
 
 import com.example.FlightManagermentEasy.entity.user.Account;
 import com.example.FlightManagermentEasy.entity.user.AccountRole;
+import com.example.FlightManagermentEasy.repository.user.user.AccountRoleRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

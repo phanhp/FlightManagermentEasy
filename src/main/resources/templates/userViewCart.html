@@ -61,6 +61,7 @@
                         </div>
                     </div>
                 </div>
+                <div th:text="${paymentResult}" class="message"></div>
                 <div th:with="ticketList=${ticketListEntry}">
                     <div th:each="ticket : ${ticketList}">
                         <div th:class="${ticketService.findCabinNameByTicketId(ticket.id)}=='Economy'? 'ticket-box':'ticket-box-business'">
@@ -74,8 +75,8 @@
                                 <div class="ticket-detail imp"
                                      th:text="${ticketService.findPassengerNameByTicketId(ticket.id)}">
                                 </div>
-                                <div th:if="${ticketService.findPromotionTicketListByTicketId(ticket.id)!=null}">
-                                    <div th:with="promotionTicketList=${ticket.getPromotionTicketList()}">
+                                <div th:if="${promotionTicketRepository.findPromotionTicketsByTicketId(ticket.id)!=null}">
+                                    <div th:with="promotionTicketList=${promotionTicketRepository.findPromotionTicketsByTicketId(ticket.id)}">
                                         <div class="ticket-detail"
                                              th:text="'There are '+${promotionTicketList.size()}+' promotion-tickets were used for this ticket'">
                                         </div>
@@ -139,8 +140,8 @@
         <a th:href="${userCartPage}+${previousPage}">
             <button class="btn-page-control">Previous Page</button>
         </a>
-        <form class="page-form" th:action="@{/user/cart-page}" , method="get">
-            <select  id="page" name="page">
+        <form class="page-form" th:action="${userCartPage}" , method="get">
+            <select id="page" name="page">
                 <th:block class="page-selection" th:each="page : ${allPageList}">
                     <option th:value="(${page}-1)"
                             th:text="${page}"

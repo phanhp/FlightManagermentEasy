@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Home Page</title>
+    <script th:src="@{https://code.jquery.com/jquery-3.6.0.min.js}"></script>
     <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" th:href="@{path/to/font-awesome/css/font-awesome.min.css}">
     <link th:href="@{/css/home.css}" rel="stylesheet" type="text/css">
@@ -15,8 +16,8 @@
     <form th:action="@{/flight-management/search}" method="get">
         <div class="search-box row">
             <div class="col-lg-3">
-                <label for="departureCity">Departure City</label>
-                <select class="form-control" id="departureCity" name="departureCityId">
+                <label for="departureCityId">Departure City</label>
+                <select class="form-control" id="departureCityId" name="departureCityId">
                     <option th:value="0"
                             selected>Choose Departure Country
                     </option>
@@ -28,8 +29,8 @@
                 </select>
             </div>
             <div class="col-lg-3">
-                <label for="arrivalCity">Arrival City</label>
-                <select class="form-control" id="arrivalCity" name="arrivalCityId">
+                <label for="arrivalCityId">Arrival City</label>
+                <select class="form-control" id="arrivalCityId" name="arrivalCityId">
                     <option th:value="0"
                             selected>Choose Arrival Country
                     </option>
@@ -56,12 +57,13 @@
     </form>
 </div>
 <!--Flight List-->
-<div class="container flight-list" id="flightList">
+<div class="container flight-list">
     <div class="result-search" th:text="${resultSearch}"></div>
-    <div class="card custom-card-box"
-         th:each="flight : ${flightList}">
+    <div class="custom-card-box"
+         th:each="flight : ${flightList}"
+         id="flightList">
         <div class="row card-box">
-            <div class="col-lg-10">
+            <div class="col-lg-10 ticket-information">
                 <div class="row">
                     <div class="col-lg-5">
                         <div class="row">
@@ -79,16 +81,32 @@
                 <div class="row">
                     <div class="col-lg-5 time-box">
                         <div class="row">
+                            <h5 class="my-option-name time">Departure Day:</h5>
+                            <h5 class="time"
+                                th:text="${muf.viewDayMonthYear(flight.departureTime)}"></h5>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 time-box">
+                        <div class="row">
+                            <h5 class="my-option-name time">Arrival Day:</h5>
+                            <h5 class="time"
+                                th:text="${muf.viewDayMonthYear(flight.arrivalTime)}"></h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 time-box">
+                        <div class="row">
                             <h5 class="my-option-name time">Departure Time:</h5>
                             <h5 class="time"
-                                th:text="${#temporals.format(#temporals.createDateTime(flight.departureTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
+                                th:text="${muf.viewHourMinute(flight.departureTime)}"></h5>
                         </div>
                     </div>
                     <div class="col-lg-5 time-box">
                         <div class="row">
                             <h5 class="my-option-name time">Arrival Time:</h5>
                             <h5 class="time"
-                                th:text="${#temporals.format(#temporals.createDateTime(flight.arrivalTime,'yyyy-MM-dd''T''HH:mm'),'dd-MM-yyyy HH:mm')}"></h5>
+                                th:text="${muf.viewHourMinute(flight.arrivalTime)}"></h5>
                         </div>
                     </div>
                 </div>
@@ -110,7 +128,7 @@
 
             <div class="col-lg-2 custom-btn-buy">
                 <a th:href="@{/user/booking-ticket-page/{flightId}(flightId = ${flight.id})}">
-                    <button class="btn btn-success btn-buy d-flex justify-content-center">Book</button>
+                    <button class="btn-buy">Book</button>
                 </a>
             </div>
         </div>

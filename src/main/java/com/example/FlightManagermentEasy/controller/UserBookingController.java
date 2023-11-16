@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -61,7 +62,8 @@ public class UserBookingController {
     @Autowired
     MUF muf;
 
-    //Page Of Seat Mapping Of Flight For Booking
+    //***************** BOOKING *************************
+    //Load Booking Page By Flight
     @GetMapping("/user/booking-ticket-page/{flightId}")
     public String userBookingTicketPage(Model model,
                                         @PathVariable("flightId") long flightId,
@@ -73,21 +75,24 @@ public class UserBookingController {
         model.addAttribute("aircraftService", aircraftService);
         model.addAttribute("ticketService", ticketService);
         model.addAttribute("bookingSession", bookingSession);
+        model.addAttribute("loginSession", loginSession);
 
         commonModel.headerModel(model);
         return "userSeatBookingForm";
     }
 
+    //Book Ticket
     @PostMapping("/user/booking-ticket")
     public String userBookingTicket(@RequestParam(value = "selectedTicket", required = false) Optional<List<Long>> optionalSelectedTicketIdList,
                                     @RequestParam(value = "flightId", required = true) long flightId,
+                                    @RequestParam(value = "accountId", required = true) long accountId,
                                     HttpSession session) {
         List<Long> selectedTicketIdList = optionalSelectedTicketIdList.orElse(new ArrayList<>());
-        bookingSession.addListTicketToCartBySelectedId(selectedTicketIdList, flightId);
+        bookingSession.addListTicketToCartBySelectedId(selectedTicketIdList, flightId, accountId);
         return "redirect:/user/cart-page";
     }
 
-    //View All Booked But Wasn't Purchased Tickets
+    //********************* CART ***********************
     @GetMapping("/user/cart-page")
     public String userCartPage(Model model,
                                @RequestParam("page") Optional<Integer> page,
@@ -103,16 +108,53 @@ public class UserBookingController {
         return "userViewCartForm";
     }
 
+    //UnBook Ticket
+    @GetMapping("/user/remove-ticket-from-cart/{ticketId}")
+    public String userRemoveTicketFromCart(@PathVariable("ticketId") long ticketId,
+                                           HttpSession session,
+                                           Model model) {
+        String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
+        bookingSession.isUnbookedTicketSuccess(ticketId);
+        return userCartPageUrl;
+    }
 
+    //********************* PURCHASED TICKETED PAGE ****************************
+    @GetMapping("/user/view-purchased-tickets-page")
+    public String userViewPurchasedTicketsPage(Model model,
+                                               @RequestParam("page") Optional<Integer> page,
+                                               HttpSession session) {
+        Pageable pageable = PageRequest.of(page.orElse(0), 1);
+        String ticketListPageTitle = "ticketListPage";
+        Page<List<Ticket>> ticketListPage = bookingSession.viewPurchasedTicketPage(pageable);
+        String pageUrlTitle = "userPurchasedTicketPage";
+        String pageUrl = "/user/view-purchased-tickets-page";
+
+        commonModel.cartPageModel(model, session, page, ticketListPageTitle, ticketListPage, pageUrlTitle, pageUrl);
+        commonModel.headerModel(model);
+        return "userViewPurchasedTicketsForm";
+    }
+
+    //UnBook Ticket
+    @GetMapping("/user/refund-ticket/{ticketId}")
+    public String userRefundTicket(@PathVariable("ticketId") long ticketId,
+                                   HttpSession session,
+                                   Model model) {
+        String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userPurchasedTicketPage", "/user/view-purchased-tickets-page");
+        bookingSession.isRefundTicketSuccess(ticketId);
+        return userCartPageUrl;
+    }
+
+    //************************** PASSENGER *******************************
     @GetMapping("/user/passenger-edit-page/{ticketId}")
     public String userPassengerRegisterPage(@PathVariable("ticketId") long ticketId,
                                             Model model,
                                             HttpSession session) {
         Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        Passenger passenger = ticketService.findPassengerByTicketId(ticketId);
-        if (passenger == null) {
-            passenger = new Passenger();
+        if (ticket == null) {
+            String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
+            return userCartPageUrl;
         }
+        Passenger passenger = ticketService.findPassengerByTicketId(ticketId);
 
         model.addAttribute("ticket", ticket);
         model.addAttribute("passenger", passenger);
@@ -133,30 +175,19 @@ public class UserBookingController {
                                         HttpSession session,
                                         Model model) {
         String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
-        if (bookingSession.isTicketBelongThisBooking(ticketId)) {
-            ticketService.setPassengerToTicket(ticketId, identity, name, address, dob, gender);
-            return userCartPageUrl;
-        }
+        bookingSession.isSetPassengerToTicketSuccess(ticketId, identity, name, address, dob, gender);
         return userCartPageUrl;
     }
 
-    @GetMapping("/user/remove-ticket-from-cart/{ticketId}")
-    public String userRemoveTicketFromCart(@PathVariable("ticketId") long ticketId,
-                                           HttpSession session,
-                                           Model model) {
-        Ticket ticket = ticketStatus.setUnBookedTicket(ticketId);
-        String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
-        return userCartPageUrl;
-    }
-
+    //******************* PURCHASE TICKET *************************
     @GetMapping("/user/purchase-ticket/{ticketId}")
     public String userPurchaseSingleTicker(@PathVariable("ticketId") long ticketId,
                                            HttpSession session, Model model) {
         if (bookingSession.getBankAccount() == null) {
             return "redirect:/user/bank-account-page";
         } else {
-            bookingSession.purchaseSingleTicket(ticketId);
             String userCartPageUrl = commonModel.getRedirectPageUrlSession(session, model, "userCartPage", "/user/cart-page");
+            bookingSession.isPurchaseSingleTicketSuccess(ticketId);
             return userCartPageUrl;
         }
     }
@@ -166,7 +197,7 @@ public class UserBookingController {
         if (bookingSession.getBankAccount() == null) {
             return "redirect:/user/bank-account-page";
         } else {
-            bookingSession.purchaseAllTicketInCart();
+            bookingSession.isPurchaseAllTicketsSuccess();
             return "redirect:/user/cart-page";
         }
     }
@@ -184,56 +215,57 @@ public class UserBookingController {
             session.setAttribute("promotionTicketPageError", "Ticket not found");
             return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
         }
-
         FlightDTO flightDTO = flightService.findFlightDTOById(flightRepository.findFlightsByTicketId(ticketId).getId());
         if (flightDTO == null) {
             session.setAttribute("promotionTicketPageError", "Flight not found");
             return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
         }
-
-        String flightLocationText = "From: "+flightDTO.getDepartureCity()+" To"+flightDTO.getArrivalCity();
-        String departureTimeText = "Departure Time: "+muf.viewStringOfLocalDateTime(flightDTO.getDepartureTime());
-        String arrivalTimeText = "Arrival Time: "+muf.viewStringOfLocalDateTime(flightDTO.getArrivalTime());
-        model.addAttribute("flightLocationText", flightLocationText);
-        model.addAttribute("departureTimeText", departureTimeText);
-        model.addAttribute("arrivalTimeText", arrivalTimeText);
+        model.addAttribute("flight", flightDTO);
         model.addAttribute("ticket", ticket);
+
         String cabinName = ticketService.findCabinNameByTicketId(ticketId);
         model.addAttribute("cabinName", cabinName);
+        String seatName = ticketService.findSeatNameByTicketId(ticketId);
+        model.addAttribute("seatName", seatName);
 
         String userCartPageUrl = (String) session.getAttribute("userCartPageUrl");
         model.addAttribute("userCartPageUrl", userCartPageUrl);
 
+        List<PromotionTicket> promotionTicketList = promotionTicketRepository.findPromotionTicketsByTicketId(ticketId);
+        model.addAttribute("promotionTicketList", promotionTicketList);
+
+        double currentReduction = ticketService.priceReductionForTicket(ticket)*100;
+        double currentTicketPrice = ticketService.ticketCost(ticket);
+        double orignialPrice = ticket.getPrice();
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        model.addAttribute("currentReduction", decimalFormat.format(currentReduction));
+        model.addAttribute("currentTicketPrice", decimalFormat.format(currentTicketPrice));
+        model.addAttribute("orignialPrice", decimalFormat.format(orignialPrice));
+
+        model.addAttribute("muf", muf);
         commonModel.headerModel(model);
         return "userAddPromotionTicketForm";
     }
 
     @PostMapping("/user/add-promotion-to-ticket")
     public String userAddPromotionToTicket(@RequestParam("promotionTicketCode") String code,
-                                           @RequestParam("ticketId") long ticketId,
-                                           HttpSession session,
-                                           Model model) {
-        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
-        if (ticket != null) {
-            PromotionTicket promotionTicket = promotionTicketRepository.findPromotionTicketByCode(code);
-            if (promotionTicket != null) {
-                promotionTicket = ticketStatus.setUsedPromotionTicket(promotionTicket, ticket);
-                return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
-            } else {
-                session.setAttribute("error", "Promotion Ticket is not exits");
-                return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
-            }
+                                           @RequestParam("ticketId") long ticketId) {
+        if (bookingSession.isUsePromotionTicketSuccess(code, ticketId)) {
+            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
         } else {
-            session.setAttribute("error", "Ticket is not exits");
-            return "redirect:/user/cart-page";
+            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
         }
     }
 
     @GetMapping("/user/remove-promotion-from-ticket/{promotionTicketId}/{ticketId}")
     public String removePromotionFromTicket(@PathVariable("promotionTicketId") long promotionTicketId,
                                             @PathVariable("ticketId") long ticketId) {
-        PromotionTicket promotionTicket = ticketStatus.setUnUsedPromotionTicket(promotionTicketId);
-        return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
+        if(bookingSession.isUnUsedPromotionTicketSuccess(promotionTicketId)){
+            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
+        } else {
+            return "redirect:/user/add-promotion-to-ticket-page/ticket/" + ticketId;
+        }
+
     }
 
     //Login Bank Account For BookingSession
@@ -268,15 +300,6 @@ public class UserBookingController {
         commonModel.genderListModel(model);
         commonModel.headerModel(model);
         return "userViewPurchasedTicketsForm";
-    }
-
-    @GetMapping("/user/refund-ticket/{ticketId}")
-    public String userRefundTicket(@PathVariable("ticketId") long ticketId) {
-        if (bookingSession.refundTicket(ticketId)) {
-            return "redirect:/user/view-purchased-ticket-page";
-        } else {
-            return "redirect:/";
-        }
     }
 
 }

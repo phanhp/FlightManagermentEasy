@@ -12,7 +12,6 @@ import com.example.FlightManagermentEasy.entity.flight.location.Airport;
 import com.example.FlightManagermentEasy.entity.flight.location.City;
 import com.example.FlightManagermentEasy.entity.flight.location.Country;
 import com.example.FlightManagermentEasy.entity.flight.location.Route;
-import com.example.FlightManagermentEasy.entity.user.Account;
 import com.example.FlightManagermentEasy.repository.TicketRepository;
 import com.example.FlightManagermentEasy.repository.flight.FlightRepository;
 import com.example.FlightManagermentEasy.repository.flight.aircraft.AircraftRepository;
@@ -31,14 +30,12 @@ import com.example.FlightManagermentEasy.service.session.LoginSession;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,7 +72,7 @@ public class AdminFlightController {
     @Autowired
     CommonModel commonModel;
 
-    @GetMapping({"/admin/view-flights-page","/admin/view-flights-page/search"})
+    @GetMapping({"/admin/view-flights-page", "/admin/view-flights-page/search"})
     public String adminViewFlightPage(Model model,
                                       @RequestParam("page") Optional<Integer> page,
                                       @RequestParam(value = "departureCityId", required = false, defaultValue = "0") Optional<Long> departureCityIdOptional,
@@ -90,54 +87,38 @@ public class AdminFlightController {
                 departureCityIdOptional, arrivalCityIdOptional, departureTimeOptional,
                 page, pageable,
                 pageUrlTitle, pageUrl);
-        return "adminViewFlights";
+        return "managerViewFlight";
     }
 
     @GetMapping("/admin/create-flight-page")
     public String adminCreateFlightPage(Model model,
                                         HttpSession session) {
-        FlightDTO flightDTO = new FlightDTO();
+
+        FlightDTO flightDTO = (FlightDTO) session.getAttribute("createFlightData");
+        if (flightDTO == null) {
+            flightDTO = new FlightDTO();
+        }
         model.addAttribute("flight", flightDTO);
-        model.addAttribute("title", "Create Flight Page");
 
         List<Aircraft> aircraftList = aircraftRepository.findAll();
         List<AircraftDTO> aircraftDTOList = collectionConverter.toAircraftDTOList(aircraftList);
         model.addAttribute("aircraftList", aircraftDTOList);
 
-        List<Country> countryList = countryRepository.findAll();
-        List<CountryDTO> countryDTOList = collectionConverter.toCountryDTOList(countryList);
-        model.addAttribute("countryList", countryDTOList);
-
-        List<City> cityList = cityRepository.findAll();
-        List<CityDTO> cityDTOList = collectionConverter.toCityDTOList(cityList);
-        model.addAttribute("cityList", cityDTOList);
-
-        List<Airport> airportList = airportRepository.findAll();
-        List<AirportDTO> airportDTOList = collectionConverter.toAirportDTOList(airportList);
-        model.addAttribute("airportList", airportDTOList);
-
-        List<Route> routeList = routeRepository.findAll();
-        List<RouteDTO> routeDTOList = collectionConverter.toRouteDTOList(routeList);
-        model.addAttribute("routeList", routeList);
-
+        model.addAttribute("title", "Create Flight Page");
         model.addAttribute("action", "/admin/create-flight");
         model.addAttribute("submit", "Creat Flight");
 
+        commonModel.locationModel(model);
         commonModel.headerModel(model);
-        return "adminCreateFlight";
+        return "managerCreateFlight";
     }
 
     @PostMapping("/admin/create-flight")
     public String adminCreateFlight(@Valid @ModelAttribute("flight") FlightDTO flightDTO,
-                                    @RequestParam("departureRouteId") Optional<Long> optionalDepartureRouteId,
-                                    @RequestParam("arrivalRouteId") Optional<Long> optionalArrivalRouteId,
                                     HttpSession session) {
-        long departureRouteId = optionalDepartureRouteId.orElse(Long.valueOf(0));
-        long arrivalRouteId = optionalArrivalRouteId.orElse(Long.valueOf(0));
-        flightDTO.setDepartureRouteId(departureRouteId);
-        flightDTO.setArrivalRouteId(arrivalRouteId);
-        flightService.createFlight(flightDTO);
-
+        String createFlightResult = flightService.createFlightResult(flightDTO);
+        session.setAttribute("createFlightData", flightDTO);
+        session.setAttribute("createFlightResult", createFlightResult);
         return "redirect:/admin/view-flights-page";
     }
 
@@ -170,7 +151,7 @@ public class AdminFlightController {
         model.addAttribute("routeList", routeList);
 
         commonModel.headerModel(model);
-        return "adminUpdateFlight";
+        return "managerUpdateFlight";
     }
 
     @PostMapping("/admin/update-flight")
@@ -185,9 +166,10 @@ public class AdminFlightController {
         return "redirect:/admin/view-flights-page";
     }
 
-    @GetMapping("/admin/delete-flight/{flightId}")
+    @GetMapping("/manager/delete-flight/{flightId}")
     private String adminDeleteFlight(@PathVariable("flightId") long flightId) {
-        flightRepository.deleteById(flightId);
+        String s = flightService.deleteFlightResult(flightId);
+        System.out.println(s);
         return "redirect:/admin/view-flights-page";
     }
 }

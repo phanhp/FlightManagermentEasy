@@ -25,7 +25,7 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
 
     @Query(value = "select f.* from flights f\n" +
             "where f.departure_time> ?1", nativeQuery = true)
-    List<Flight> findAllFlightsAfterNow(LocalDateTime thisMoment);
+    List<Flight> findAllFlightsAfterMoment(LocalDateTime thisMoment);
 
     @Query(value = "select f.* from flights f\n" +
             "join routes dr on f.departure_route_id = dr.id\n" +
@@ -82,4 +82,9 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     @Query(value = "select f.* from flights f\n" +
             "where f.departure_time between ?1 and ?2 and f.departure_time > ?3", nativeQuery = true)
     List<Flight> findFlightsByDT(LocalDateTime departureTime, LocalDateTime nextDay, LocalDateTime thisMoment);
+
+    @Query(value = "select f.* from flights f\n" +
+            "join aircrafts a on f.aircraft_id = a.id\n" +
+            "where a.id = ?1", nativeQuery = true)
+    List<Flight> findFlightsByAircraftId(long aircraftId);
 }

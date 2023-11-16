@@ -22,7 +22,7 @@ public class Account extends Person {
     @Lob
     @Column(name = "image")
     private Blob image;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "account")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "account", fetch = FetchType.EAGER)
     private List<AccountRole> accountRoleList;
 
     public Account(long id, String name, LocalDate dob, String address, String identity, String gender, String accountName, String password, String email, String phone, Blob image, List<AccountRole> accountRoleList) {

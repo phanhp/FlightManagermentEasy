@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Aircraft Admin</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/adminViewAircraft.css}" rel="stylesheet" type="text/css">
+    <script th:src="@{https://code.jquery.com/jquery-3.6.0.min.js}"></script>
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" th:replace="flight-management/fragments.html :: header"></header>
+<div class="container">
+    <div class="error" th:text="${deleteAircraftMessage}"></div>
+    <table class="table-striped table">
+        <thead>
+            <td class="element">ID</td>
+            <td class="element">Name</td>
+            <td class="element">Airline Name</td>
+            <td class="element">Business Seat Amounts</td>
+            <td class="element">Economy Seat Amounts</td>
+            <td class="element">Update</td>
+            <td class="element">Delete</td>
+        </thead>
+        <tbody th:each="aicraft : ${aircraftList}">
+            <tr class="table-body">
+                <td class="element" th:text="${aicraft.id}"></td>
+                <td class="element" th:text="${aicraft.name}"></td>
+                <td class="element" th:text="${aicraft.airlineName}"></td>
+                <td class="element" th:text="${aicraft.businessSeatsAmount}"></td>
+                <td class="element" th:text="${aicraft.economySeatsAmount}"></td>
+                <td class="element action-link"><a th:href="@{/}">
+                    <button class="btn-update btn">Update</button>
+                </a></td>
+                <td class="element action-link"><a th:href="@{/manager/delete-aircraft/{aircraftId} (aircraftId=${aicraft.getId()})}">
+                    <button class="btn-delete btn">Delete</button>
+                </a></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<script th:src="@{js/currentURL}" type="text/javascript"></script>
+</body>
+</html>

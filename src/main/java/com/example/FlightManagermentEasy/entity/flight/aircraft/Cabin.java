@@ -14,9 +14,9 @@ public class Cabin {
     @Column(name = "name", nullable = false)
     private String name;
     @ManyToOne
-    @JoinColumn(name = "aircraft_id", nullable = false)
+    @JoinColumn(name = "aircraft_id")
     private Aircraft aircraft;
-    @OneToMany(mappedBy = "cabin", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "cabin")
     private List<SeatRow> seatRowList;
 
     public Cabin(String name, Aircraft aircraft) {

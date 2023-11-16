@@ -5,43 +5,36 @@ import com.example.FlightManagermentEasy.entity.MyToken;
 import com.example.FlightManagermentEasy.entity.user.Account;
 import com.example.FlightManagermentEasy.entity.user.AccountRole;
 import com.example.FlightManagermentEasy.entity.user.Role;
+import com.example.FlightManagermentEasy.exception.InvalidDataException;
+import com.example.FlightManagermentEasy.repository.MyTokenRepository;
 import com.example.FlightManagermentEasy.repository.user.user.AccountRepository;
 import com.example.FlightManagermentEasy.repository.user.user.AccountRoleRepository;
 import com.example.FlightManagermentEasy.repository.user.user.RoleRepository;
 import com.example.FlightManagermentEasy.service.CommonModel;
 import com.example.FlightManagermentEasy.service.MUF;
-import com.example.FlightManagermentEasy.service.service.EmailRequest;
 import com.example.FlightManagermentEasy.service.service.EmailService;
 import com.example.FlightManagermentEasy.service.service.TokenService;
 import com.example.FlightManagermentEasy.service.service.user.AccountService;
 import com.example.FlightManagermentEasy.service.session.BookingSession;
 import com.example.FlightManagermentEasy.service.session.LoginSession;
 import com.example.FlightManagermentEasy.service.session.ThisMomentSession;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 
-import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
-import java.sql.Blob;
 import java.time.LocalDateTime;
-import java.util.Base64;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +61,9 @@ public class LoginController {
     @Autowired
     ThisMomentSession thisMomentSession;
     @Autowired
-    EmailService  emailService;
+    EmailService emailService;
+    @Autowired
+    MyTokenRepository myTokenRepository;
     @Autowired
     MUF muf;
 
@@ -96,7 +91,7 @@ public class LoginController {
         session.setAttribute("loginError", "");
 
         commonModel.headerModel(model);
-        return "flight-management/loginForm";
+        return "flight-management/login";
     }
 
     @GetMapping("/login-fail")
@@ -146,15 +141,14 @@ public class LoginController {
 
     //User SignUP
     @GetMapping("/flight-management/user-signup-page")
-    public String signupPage(Model model,
-                             HttpSession session) {
+    public String signupPage(Model model, HttpSession session) {
         String signUpAction = "/flight-management/user-signup";
         String title = "Create Your Own Account";
         String signUpPageUrl = "redirect:/flight-management/user-signup-page";
         String submit = "Register";
 
         commonModel.signupPageModel(session, model, signUpAction, title, signUpPageUrl, submit);
-        return "flight-management/signupForm";
+        return "flight-management/signup";
     }
 
     @PostMapping("/flight-management/user-signup")
@@ -190,42 +184,38 @@ public class LoginController {
             session.setAttribute("emailError", "Email Was Used By Another Account");
             return errorUrl;
         }
-
         Account account = new Account();
         LocalDateTime thisMoment = thisMomentSession.getThisMoment();
         String createTime = muf.localDateTimeToString(thisMoment);
         MyToken token = tokenService.setAccountToken(account.getId(), name, dob, address, identity, gender, username, password, email, phone, profileImage, createTime);
         String encodeKey = token.getEncodeKey();
-        //test send email bằng cách gửi qua 1 tài khoản khác thay vì gửi bằng tài khoản email test khi điền vào
         String trueSendEmail = new String();
-        if(email != null){
-            if(!email.isEmpty()){
+        if (email != null) {
+            if (!email.isEmpty()) {
                 trueSendEmail = "phoenix.rebirth.2520@gmail.com";
             }
         }
         Map<String, String> userInformationMap = new HashMap<>();
         userInformationMap.put("name", name);
         userInformationMap.put("accountName", username);
-        if(gender.equalsIgnoreCase("Male")){
+        if (gender.equalsIgnoreCase("Male")) {
             userInformationMap.put("gender", "Mr");
         }
-        if(gender.equalsIgnoreCase("Female")){
+        if (gender.equalsIgnoreCase("Female")) {
             userInformationMap.put("gender", "Ms");
-        }
-        if(gender.equalsIgnoreCase("Mystery")){
+        } else {
             userInformationMap.put("gender", "Mr/Ms");
         }
         userInformationMap.put("encodeKey", encodeKey);
+
         String subject = "Account SignUp Confirmation From Flight-Management-Easy";
         Context context = new Context();
-        for (Map.Entry<String, String> userInforEntry: userInformationMap.entrySet()){
+        for (Map.Entry<String, String> userInforEntry : userInformationMap.entrySet()) {
             context.setVariable(userInforEntry.getKey(), userInforEntry.getValue());
         }
-        try{
-            System.out.println("Step 01");
-            emailService.sendEmailWithHtmlTemplate(trueSendEmail, subject, "emailConfirmTemplate", context);
-            System.out.println("Step 02");
-        }catch (Exception e){
+        try {
+            emailService.sendEmailWithHtmlTemplate(trueSendEmail, subject, "emailAccountSignup", context);
+        } catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("mailSendError", "Can Not Send Email, Please Try It Again");
             System.out.println("Email Cant Not Send");
@@ -237,17 +227,124 @@ public class LoginController {
         return "redirect:/login-page";
     }
 
+
+    @PostMapping("/flight-management/user-confirm-signup/{encodeKey}")
+    public String userConfirmSignup(@PathVariable("encodeKey") String encodeKey, HttpSession session) {
+        MyToken token = myTokenRepository.findMyTokenByEncodeKey(encodeKey);
+        if (token != null) {
+            Map<String, String> accountInformationMap = tokenService.getAccountInformationMapInToken(token);
+            LocalDateTime thisMoment = thisMomentSession.getThisMoment();
+            LocalDateTime createTime = muf.stringToLocalDateTime(accountInformationMap.get("createTime"));
+            try {
+                if (createTime != null) {
+                    if (thisMoment.isBefore(createTime.plusMinutes(10))) {
+                        long accountId = Long.valueOf(accountInformationMap.get("id"));
+                        Account account = accountRepository.findById(accountId).orElse(null);
+                        if (account == null) {
+                            account = new Account();
+                        }
+                        String name = accountInformationMap.get("name");
+                        String dob = accountInformationMap.get("dob");
+                        String address = accountInformationMap.get("address");
+                        String identity = accountInformationMap.get("identity");
+                        String gender = accountInformationMap.get("gender");
+                        String accountName = accountInformationMap.get("accountName");
+                        String password = accountInformationMap.get("password");
+                        String email = accountInformationMap.get("email");
+                        String phone = accountInformationMap.get("phone");
+                        String image = accountInformationMap.get("image");
+                        try {
+                            accountService.signupAndUpdateAccount(accountName, password, name, email, identity, phone, address, dob, gender, image, account);
+                            myTokenRepository.delete(token);
+                        } catch (IOException e) {
+                            System.out.println("Image load fail");
+                        } catch (InvalidDataException e) {
+                            System.out.println("Create Account Fail");
+                            session.setAttribute("signupConfirmError", e.getMessage());
+                            myTokenRepository.delete(token);
+                            return "redirect:/flight-management/user-signup-page";
+                        }
+                        return "redirect:/login-page";
+                    } else {
+                        myTokenRepository.delete(token);
+                        session.setAttribute("signupConfirmError", "Time Expired, Please Try Again");
+                        return "redirect:/flight-management/user-signup-page";
+                    }
+                } else {
+                    myTokenRepository.delete(token);
+                    session.setAttribute("signupConfirmError", "Can Not Find Information, Create Time Is Null");
+                    return "redirect:/flight-management/user-signup-page";
+                }
+            } catch (DateTimeParseException e) {
+                myTokenRepository.delete(token);
+                session.setAttribute("signupConfirmError", "Can Not Find Information, Create Time Encode Fail");
+                return "redirect:/flight-management/user-signup-page";
+            }
+        } else {
+            session.setAttribute("signupConfirmError", "Can Not Find Information");
+            return "redirect:/flight-management/user-signup-page";
+        }
+    }
+
+    @GetMapping("/flight-management/forget-password-page")
+    public String forgetPasswordPage(Model model, HttpSession session) {
+        String forgetPasswordEmailError = (String) session.getAttribute("forgetPasswordEmailError");
+        String forgetEmail = (String) session.getAttribute("forgetEmail");
+        session.setAttribute("forgetPasswordEmailError", "");
+        session.setAttribute("forgetEmail", "");
+        model.addAttribute("forgetEmail", forgetEmail);
+        model.addAttribute("forgetPasswordEmailError", forgetPasswordEmailError);
+        model.addAttribute("pageUrl", "redirect:/flight-management/forget-password-page");
+        return "forgetAccount";
+    }
+
+    @PostMapping("/flight-management/information-send")
+    public String informationSend(Model model, HttpSession session,
+                                  @RequestParam("email") String email,
+                                  @RequestParam("pageUrl") String pageUrl){
+        try {
+            String[] s = accountService.getInformationFromEmail(email);
+            String accountName =  s[0];
+            String name = s[1];
+            String newPassword = s[2];
+            String trueSendEmail = new String();
+            if (email != null) {
+                if (!email.isEmpty()) {
+                    trueSendEmail = "phoenix.rebirth.2520@gmail.com";
+                }
+            }
+            String subject = "Account And Password Recover";
+            Context context = new Context();
+            context.setVariable("accountName", accountName);
+            context.setVariable("name", name);
+            context.setVariable("password", newPassword);
+            try {
+                emailService.sendEmailWithHtmlTemplate(trueSendEmail, subject, "emailPasswordAndAccountRecover", context);
+            } catch (Exception e) {
+                e.printStackTrace();
+                session.setAttribute("mailSendError", "Can Not Send Email, Please Try It Again");
+                System.out.println("Email Cant Not Send");
+            }
+            return "redirect:/login-page";
+        }catch (InvalidDataException e){
+            e.printStackTrace();
+            String reportError = e.getMessage();
+            session.setAttribute("forgetEmail", email);
+            session.setAttribute("forgetPasswordEmailError", reportError);
+            return pageUrl;
+        }
+    }
+
     //  Admin SignUp
     @GetMapping("/admin/admin-signup-page")
-    public String adminSignUpPage(Model model,
-                                  HttpSession session) {
+    public String adminSignUpPage(Model model, HttpSession session) {
         String signupAction = "/admin/admin-signup";
         String title = "Welcome New Admin";
         String signupPageUrl = "redirect:/admin/admin-signup-page";
         String submit = "Signup New Admin";
 
         commonModel.signupPageModel(session, model, signupAction, title, signupPageUrl, submit);
-        return "flight-management/signupForm";
+        return "flight-management/signup";
     }
 
     @PostMapping("/admin/admin-signup")
@@ -288,8 +385,8 @@ public class LoginController {
         } catch (IOException e) {
             session.setAttribute("profileImage", null);
             session.setAttribute("imageError", "File Could Not Load");
-        } catch (RuntimeException e) {
-            session.setAttribute("CUAccountError", "Account Name, Email Or Identity Were Used By Other Accounts");
+        } catch (InvalidDataException e) {
+            session.setAttribute("CUAccountError", e.getMessage());
             return errorUrl;
         }
 
@@ -312,7 +409,7 @@ public class LoginController {
         String submit = "Signup New Manager";
 
         commonModel.signupPageModel(session, model, signupAction, title, signupPageUrl, submit);
-        return "flight-management/signupForm";
+        return "flight-management/signup";
     }
 
     @PostMapping("/admin/manager-signup")
@@ -354,8 +451,8 @@ public class LoginController {
         } catch (IOException e) {
             session.setAttribute("profileImage", null);
             session.setAttribute("imageError", "File Could Not Load");
-        } catch (RuntimeException e) {
-            session.setAttribute("CUAccountError", "Account Name, Email Or Identity Were Used By Other Accounts");
+        } catch (InvalidDataException e) {
+            session.setAttribute("CUAccountError", e.getMessage());
             return errorUrl;
         }
 

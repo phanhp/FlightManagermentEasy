@@ -23,7 +23,7 @@ public class PromotionTicket {
     private LocalDateTime expiredDate;
     @Column(name = "available", nullable = false)
     private boolean available;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 

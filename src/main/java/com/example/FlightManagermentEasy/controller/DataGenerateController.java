@@ -39,7 +39,7 @@ public class DataGenerateController {
 
     @GetMapping("/flight-management/data-generate-page")
     public String dataGeneratePage(Model model) {
-        return "flight-management/dataGenerateForm";
+        return "flight-management/dataGenerate";
     }
 
     @GetMapping("/flight-management/location-data-generate")

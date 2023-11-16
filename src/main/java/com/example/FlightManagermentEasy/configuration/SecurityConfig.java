@@ -32,10 +32,10 @@ public class SecurityConfig {
                 .csrf((csrf)->csrf
                         .disable())
                 .authorizeHttpRequests((request) -> request
-                        .requestMatchers("/","/css/**","/js/**","/images/**","/files/**","/flight-management/**","/test","/ajax/**","/**").permitAll()
+                        .requestMatchers("/","/css/**","/js/**","/images/**","/files/**","/flight-management/**","/test","/ajax/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("admin")
-                        .requestMatchers("/manager/**").hasAnyAuthority("admin", "manager")
-                        .requestMatchers("/user/**").hasAnyAuthority("user", "admin", "manager")
+                        .requestMatchers("/manager/**").hasAnyAuthority("manager")
+                        .requestMatchers("/user/**").hasAnyAuthority("user")
                         .anyRequest()
                         .authenticated())
                 .formLogin((login) -> login

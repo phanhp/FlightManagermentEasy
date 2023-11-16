@@ -16,7 +16,7 @@ public class Aircraft {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
     @ManyToOne
-    @JoinColumn(name = "airline_id", nullable = false)
+    @JoinColumn(name = "airline_id")
     private Airline airline;
     @OneToMany(mappedBy = "aircraft", cascade = CascadeType.ALL)
     private List<Cabin> cabinList;

@@ -6,56 +6,44 @@
     color: red;
     background-color: hotpink;
 }
-
-/*Flight*/
-.custom-btn-buy {
-    margin-bottom: 10px;
-}
-
-.btn-buy {
-    width: 100px;
-}
-
-.btn-buy a {
-    color: white;
-}
-
-.flight-list {
-    margin-top: 10px;
-}
-
-.my-option-name {
-    margin-right: 8px;
-}
-
 .city {
     color: black;
 }
-
 .time {
     color: purple;
 }
-
 .price {
     color: blue;
 }
-
 .seat {
     color: #1FA9D6;
 }
 
 .custom-card-box {
-    background-color: #bee5eb;
+    background-color: #eaf0ff;
     border-radius: 10px;
     border: #1FA9D6 2px solid;
-    margin-bottom: 5px;
+    margin-bottom: 20px;
 }
-
 .card-box {
-    margin-top: 5px;
-    margin-left: 20px;
 }
-
+.element{
+    width: 100%;
+    min-width: 600px;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.my-option-name{
+    margin-left: 100px;
+}
+/*.ticket-information{*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*}*/
 /*Ticket*/
 .aircraft {
     margin-top: 10px;

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forget Account</title>
+    <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css}">
+    <link th:href="@{/css/loginForm.css.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="header" id="header" th:replace="flight-management/fragments :: header"></header>
+<div class="container">
+    <div class="title card-box">
+        <h1 class="mt-4" th:text="${title}"></h1>
+    </div>
+    <div class="signup-error">
+        <h3 class="error signup-problem" th:text="${signupConfirmError}"></h3>
+    </div>
+    <form th:action="${signupAction}" method="post" enctype="multipart/form-data">
+        <input type="text" th:value="${pageUrl}" hidden="hidden" readonly name="pageUrl">
+        <div class="card-box">
+            <h5 class="form-title">Forget Account Or Password</h5>
+            <div class="row element">
+                <div class="col-lg-2">
+                    <label class="label-title" for="email">
+                        <h6>Email</h6>
+                        <span>(*)</span>
+                    </label>
+                </div>
+                <div class="col-lg-10 field-require">
+                    <input class="form-control"
+                           type="email"
+                           placeholder="Email"
+                           id="email"
+                           th:value="${forgetEmail}"
+                           name="email">
+                </div>
+            </div>
+            <div class="error" th:text="${forgetPasswordEmailError}"></div>
+        </div>
+        <div class="element submit row">
+            <div class="col-lg-6 submit-box">
+                <button class="btn btn-success submit-btn"
+                        type="submit"
+                        th:text="${submit}"></button>
+            </div>
+            <div class="col-lg-6 submit-box">
+                <button class="btn btn-success submit-btn"><a th:href="@{/login-page}">Already Have Account</a></button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

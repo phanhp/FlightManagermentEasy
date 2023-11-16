@@ -1,8 +1,10 @@
 package com.example.FlightManagermentEasy.service.data.aircraft;
 
 import com.example.FlightManagermentEasy.entity.flight.aircraft.*;
+import com.example.FlightManagermentEasy.exception.InvalidDataException;
 import com.example.FlightManagermentEasy.repository.flight.aircraft.*;
 import com.example.FlightManagermentEasy.service.MUF;
+import com.example.FlightManagermentEasy.service.service.flight.aircraft.AircraftService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +26,16 @@ public class AircraftData {
     SeatRowRepository seatRowRepository;
     @Autowired
     SeatRepository seatRepository;
+    @Autowired
+    AircraftService aircraftService;
+    @Autowired
+    MUF muf;
 
     public void createAirlineData(){
         aircraftDataFunction.createAirline("VietName Airline, VietJet, Bamboo");
     }
 
     public void createAircraftData(){
-        MUF muf = new MUF();
         List<Airline> airlineList = airlineRepository.findAll();
 
         List<String> randomSeatPerRowString = muf.toArrayString("4,5,6");
@@ -76,5 +81,10 @@ public class AircraftData {
                 }
             }
         }
+//        try {
+//            aircraftService.createAircraft(1,"TESTER", 30,6,15,8);
+//        }catch (InvalidDataException e){
+//
+//        }
     }
 }

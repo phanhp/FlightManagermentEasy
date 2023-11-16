@@ -82,80 +82,28 @@ public class ObjectConverter {
         if (flightDTO.getId() == 0) {
             flight = new Flight();
         } else {
-            try {
-                flight = flightRepository.findById(flightDTO.getId()).get();
-            } catch (NullPointerException e) {
-                flight = new Flight();
-            }
+            flight = flightRepository.findById(flightDTO.getId()).orElse(new Flight());
         }
 //        private String pnr;
-        if (flightDTO.getPnr() != null) {
-            if (!flightDTO.getPnr().isEmpty()) {
-                flight.setPnr(flightDTO.getPnr());
-            } else {
-                List<Flight> flightList = flightRepository.findAll();
-                if (!flightList.isEmpty()) {
-                    Set<String> pnrSet = flightList.stream().map(Flight::getPnr).collect(Collectors.toSet());
-                    String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                    flight.setPnr(pnr);
-                } else {
-                    Set<String> pnrSet = new HashSet<>();
-                    String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                    flight.setPnr(flightDTO.getPnr());
-                }
-            }
-        } else {
-            List<Flight> flightList = flightRepository.findAll();
-            if (!flightList.isEmpty()) {
-                Set<String> pnrSet = flightList.stream().map(Flight::getPnr).collect(Collectors.toSet());
-                String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                flight.setPnr(pnr);
-            } else {
-                Set<String> pnrSet = new HashSet<>();
-                String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                flight.setPnr(flightDTO.getPnr());
-            }
-        }
+        flight.setPnr(flightDTO.getPnr());
 //        private String departureTime;
-        if (flightDTO.getDepartureTime() != null) {
-            if (!flightDTO.getDepartureTime().isEmpty()) {
-                LocalDateTime departureTime = muf.stringToLocalDateTime(flightDTO.getDepartureTime());
-                flight.setDepartureTime(departureTime);
-            }
-        }
+        flight.setDepartureTime(muf.stringToLocalDateTime(flightDTO.getDepartureTime()));
 //        private long departureRouteId;
         if (flightDTO.getDepartureRouteId() != 0) {
-            Route route;
-            try {
-                route = routeRepository.findById(flightDTO.getDepartureRouteId()).get();
-                flight.setDepartureRoute(route);
-            } catch (Exception e) {
-            }
+            Route route = routeRepository.findById(flightDTO.getDepartureRouteId()).orElse(null);
+            flight.setDepartureRoute(route);
         }
 //        private String arrivalTime;
-        if (flightDTO.getArrivalTime() != null) {
-            if (!flightDTO.getArrivalTime().isEmpty()) {
-                LocalDateTime arrivalTime = muf.stringToLocalDateTime(flightDTO.getArrivalTime());
-                flight.setArrivalTime(arrivalTime);
-            }
-        }
+        flight.setArrivalTime(muf.stringToLocalDateTime(flightDTO.getArrivalTime()));
 //        private long arrivalRouteId;
         if (flightDTO.getArrivalRouteId() != 0) {
-            Route route;
-            try {
-                route = routeRepository.findById(flightDTO.getArrivalRouteId()).get();
-                flight.setArrivalRoute(route);
-            } catch (Exception e) {
-            }
+            Route route = routeRepository.findById(flightDTO.getArrivalRouteId()).orElse(null);
+            flight.setArrivalRoute(route);
         }
 //        private long aircraftId;
         if (flightDTO.getAircraftId() != 0) {
-            Aircraft aircraft;
-            try {
-                aircraft = aircraftRepository.findById(flightDTO.getAircraftId()).get();
-                flight.setAircraft(aircraft);
-            } catch (Exception e) {
-            }
+            Aircraft aircraft = aircraftRepository.findById(flightDTO.getAircraftId()).orElse(null);
+            flight.setAircraft(aircraft);
         }
 
         return flight;
@@ -166,51 +114,24 @@ public class ObjectConverter {
         FlightDTO flightDTO = new FlightDTO();
         flightDTO.setId(flight.getId());
 //        private String pnr;
-        if (flight.getPnr() != null) {
-            if (!flight.getPnr().isEmpty()) {
-                flightDTO.setPnr(flight.getPnr());
-            } else {
-                List<Flight> flightList = flightRepository.findAll();
-                if (!flightList.isEmpty()) {
-                    Set<String> pnrSet = flightList.stream().map(Flight::getPnr).collect(Collectors.toSet());
-                    String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                    flightDTO.setPnr(pnr);
-                } else {
-                    Set<String> pnrSet = new HashSet<>();
-                    String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                    flightDTO.setPnr(pnr);
-                }
-            }
-        } else {
-            List<Flight> flightList = flightRepository.findAll();
-            if (!flightList.isEmpty()) {
-                Set<String> pnrSet = flightList.stream().map(Flight::getPnr).collect(Collectors.toSet());
-                String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                flightDTO.setPnr(pnr);
-            } else {
-                Set<String> pnrSet = new HashSet<>();
-                String pnr = muf.generateRandomKeyInSet(pnrSet, 6);
-                flightDTO.setPnr(pnr);
-            }
-        }
+        flightDTO.setPnr(flight.getPnr());
 //        private double ecnonomyPrice and businessPrice;
-        try {
-            List<Ticket> economyTicketList = ticketRepository.findEconomyTicketsByFlightId(flight.getId());
-            double economyPrice = economyTicketList.get(0).getPrice();
-            flightDTO.setEcnonomyPrice(economyPrice);
-        } catch (Exception e) {
+        List<Ticket> economyTicketList = ticketRepository.findEconomyTicketsByFlightId(flight.getId());
+        if (economyTicketList != null) {
+            if (!economyTicketList.isEmpty()) {
+                double economyPrice = economyTicketList.get(0).getPrice();
+                flightDTO.setEcnonomyPrice(economyPrice);
+            }
         }
-        try {
-            List<Ticket> businessTicketList = ticketRepository.findBusinessTicketByFlightId(flight.getId());
-            double businessPrice = businessTicketList.get(0).getPrice();
-            flightDTO.setBusinessPrice(businessPrice);
-        } catch (Exception e) {
+        List<Ticket> businessTicketList = ticketRepository.findBusinessTicketByFlightId(flight.getId());
+        if (businessTicketList != null) {
+            if (!businessTicketList.isEmpty()) {
+                double businessPrice = businessTicketList.get(0).getPrice();
+                flightDTO.setBusinessPrice(businessPrice);
+            }
         }
 //        private String departureTime;
-        if (flight.getDepartureTime() != null) {
-            String departureTimeString = muf.localDateTimeToString(flight.getDepartureTime());
-            flightDTO.setDepartureTime(departureTimeString);
-        }
+        flightDTO.setDepartureTime(muf.localDateTimeToString(flight.getDepartureTime()));
 //        private long departureRouteId; private String departureCity;
         try {
             Route dr = routeRepository.findDepartureRouteByFlightId(flight.getId());
@@ -223,10 +144,7 @@ public class ObjectConverter {
         } catch (Exception e) {
         }
 //        private String arrivalTime;
-        if (flight.getArrivalTime() != null) {
-            String arrivalTimeString = muf.localDateTimeToString(flight.getArrivalTime());
-            flightDTO.setArrivalTime(arrivalTimeString);
-        }
+        flightDTO.setArrivalTime(muf.localDateTimeToString(flight.getArrivalTime()));
 //        private long arrivalRouteId; String arrivalCity;
         try {
             Route ar = routeRepository.findArrivalRouteByFlightId(flight.getId());
@@ -240,12 +158,10 @@ public class ObjectConverter {
         }
 //        private long aircraftId;
         Aircraft aircraft;
-        try {
-            aircraft = aircraftRepository.findAircraftByFlightId(flight.getId());
+        aircraft = aircraftRepository.findAircraftByFlightId(flight.getId());
+        if (aircraft != null) {
             flightDTO.setAircraftId(aircraft.getId());
-        } catch (Exception e) {
         }
-
         return flightDTO;
     }
 
@@ -564,23 +480,23 @@ public class ObjectConverter {
             account = accountRepository.findById(accountDTO.getId()).orElse(new Account());
         }
 //        private String name;
-          account.setName(accountDTO.getName());
+        account.setName(accountDTO.getName());
 //        private String dob;
-          account.setDob(muf.stringToLocalDate(accountDTO.getDob()));
+        account.setDob(muf.stringToLocalDate(accountDTO.getDob()));
 //        private String address;
-          account.setAddress(accountDTO.getAddress());
+        account.setAddress(accountDTO.getAddress());
 //        private String identity;
-          account.setIdentity(accountDTO.getIdentity());
+        account.setIdentity(accountDTO.getIdentity());
 //        private String gender;
-          account.setGender(accountDTO.getGender());
+        account.setGender(accountDTO.getGender());
 //        private String accountName;
-          account.setAccountName(accountDTO.getAccountName());
+        account.setAccountName(accountDTO.getAccountName());
 //        private String password;
-          account.setPassword(accountDTO.getPassword());
+        account.setPassword(accountDTO.getPassword());
 //        private String email;
-          account.setEmail(accountDTO.getEmail());
+        account.setEmail(accountDTO.getEmail());
 //        private String phone;
-          account.setPhone(accountDTO.getPhone());
+        account.setPhone(accountDTO.getPhone());
 //        private Blob image;
         if (accountDTO.getImage() != null) {
             try {

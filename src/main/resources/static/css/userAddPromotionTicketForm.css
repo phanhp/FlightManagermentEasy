@@ -1,46 +1,141 @@
-*{
+* {
     margin: 0px;
     padding: 0px;
-    color: purple;
 }
-.error{
+
+.error {
     color: red;
-    background-color: hotpink;
-}
-.custom-btn-buy{
+    font-size: 15px;
+    font-weight: bold;
+    margin-top: 15px;
     margin-bottom: 10px;
+    padding-left: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.btn-buy{
-    width: 100px;
-}
-.btn-buy a{
-    color: white;
-}
-.flight-list{
-    margin-top: 10px;
-}
-.my-option-name{
-    margin-right: 8px;
-}
-.city{
-    color: black;
-}
-.time {
-    color: purple;
-}
-.price{
-    color: blue;
-}
-.seat{
-    color: #1FA9D6;
-}
-.custom-card-box{
-    background-color: #bee5eb;
+
+.custom-card-box {
+    margin-top: 25px;
+    cursor: pointer;
     border-radius: 10px;
     border: #1FA9D6 2px solid;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: antiquewhite;
 }
-.card-box{
-    margin-top: 5px;
-    margin-left: 20px;
+.card-box {
+    width: 95%;
+    padding: 15px;
+    display: flex;
+}
+.my-option-name {
+    margin-right: 8px;
+}
+
+.city {
+    color: RGB(149, 82, 81);
+}
+
+.time-box {
+    margin-top: 10px;
+}
+
+.time {
+    color: RGB(0, 155, 119);
+}
+
+.price {
+    color: RGB(221, 65, 36);
+}
+
+.seat {
+    color: #1FA9D6;
+}
+.title-container{
+    width: 100%;
+}
+.title-box{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.title{
+    width: 100%;
+    margin-top: 20px;
+    font-size: 35px;
+    font-weight: bold;
+    color: darkblue;
+}
+.support{
+    margin-top: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: saddlebrown;
+}
+.form-box{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.promotion-list{
+    width: 100%;
+    margin-top: 15px;
+}
+.label-title{
+    color: #7f009f;
+    margin-right: 15px;
+    font-size: 15px;
+    font-weight: bold;
+}
+.input-box{
+    width: 50%;
+    color: darkblue;
+    font-weight: bold;
+}
+.btn-submit{
+    margin-left: 15px;
+    width: 180px;
+    height: 35px;
+    border-radius: 6px;
+    background-color: #1c7430;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.btn-submit:hover{
+    background-color: #376e37;
+    font-weight: bold;
+}
+.promotion-box{
+    margin-bottom: 10px;
+    border-top: 2px grey dashed;
+    padding: 10px;
+}
+.promotion-code{
+    float: left;
+    margin-right: 15px;
+    font-size: 15px;
+    color: darkgreen;
+    font-weight: bold;
+}
+.promotion-code:hover{
+    font-weight: bolder;
+}
+.btn-remove{
+    padding: 5px;
+    font-size: 15px;
+    background-color: #a2689f;
+    color: white;
+    border-radius: 6px;
+    width: 200px;
+}
+.btn-remove:hover{
+    font-weight: bold;
 }

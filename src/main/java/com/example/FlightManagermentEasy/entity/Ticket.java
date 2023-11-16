@@ -21,9 +21,9 @@ public class Ticket {
     @Column(name = "price")
     private double price;
     @Column(name = "available")
-    private boolean available;
+    private boolean available = true;
     @Column(name = "purchased")
-    private boolean purchased;
+    private boolean purchased = false;
     @Column(name = "reopen_time")
     private LocalDateTime reopenTime;
     @ManyToOne
@@ -38,9 +38,9 @@ public class Ticket {
     @ManyToOne
     @JoinColumn(name = "booking_id")
     private Booking booking;
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ticket")
     private List<PaymentHistory> paymentHistoryList;
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "ticket")
     private List<PromotionTicket> promotionTicketList;
 
     public Ticket() {

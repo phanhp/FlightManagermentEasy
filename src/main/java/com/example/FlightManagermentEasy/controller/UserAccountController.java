@@ -2,6 +2,7 @@ package com.example.FlightManagermentEasy.controller;
 
 import com.example.FlightManagermentEasy.dto.user.AccountDTO;
 import com.example.FlightManagermentEasy.entity.user.Account;
+import com.example.FlightManagermentEasy.exception.InvalidDataException;
 import com.example.FlightManagermentEasy.service.CommonModel;
 import com.example.FlightManagermentEasy.service.MUF;
 import com.example.FlightManagermentEasy.service.dtoconverter.ObjectConverter;
@@ -104,12 +105,9 @@ public class UserAccountController {
                     if (password.equals(repassword)) {
                         if (password.length() >= 3) {
                             try {
-                                loginSession.updateProfile(userName, password, name, email, identity, phone, address, dob, gender, profileImage);
-                            } catch (IOException e) {
-                                session.setAttribute("accountImgError", "Can not load file");
-                                return profileUrl;
-                            } catch (RuntimeException e) {
-                                session.setAttribute("CUAccountError", "Account Name, Email Or Identity Were Used By Other Accounts");
+                                loginSession.updatePassword(password);
+                            } catch (InvalidDataException e) {
+                                session.setAttribute("passwordError", e.getMessage());
                                 return profileUrl;
                             }
                         } else {
@@ -126,7 +124,7 @@ public class UserAccountController {
                     } catch (IOException e) {
                         session.setAttribute("accountImgError", "Can not load file");
                         return profileUrl;
-                    } catch (RuntimeException e) {
+                    } catch (InvalidDataException e) {
                         session.setAttribute("CUAccountError", "Account Name, Email Or Identity Were Used By Other Accounts");
                         return profileUrl;
                     }
@@ -141,7 +139,7 @@ public class UserAccountController {
             } catch (IOException e) {
                 session.setAttribute("accountImgError", "Can not load file");
                 return profileUrl;
-            } catch (RuntimeException e) {
+            } catch (InvalidDataException e) {
                 session.setAttribute("CUAccountError", "Account name, Email or Identity was used by other accounts");
                 return profileUrl;
             }

@@ -18,4 +18,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "join accounts a on b.account_id = a.id\n" +
             "where a.id = ?1 and b.purchased= true", nativeQuery = true)
     List<Booking> findPurchasedBookingByAccountId(long accountId);
+
+    @Query(value = "select b.* from bookings b\n" +
+            "join tickets t on b.id = t.booking_id\n" +
+            "where t.id = ?1", nativeQuery = true)
+    Booking findBookingsByTicketId (long ticketId);
+
 }

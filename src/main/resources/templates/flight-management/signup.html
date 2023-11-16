@@ -12,8 +12,12 @@
 <body>
 <header class="header" id="header" th:replace="flight-management/fragments :: header"></header>
 <div class="container">
-    <div class="title card-box"><h1 class="mt-4" th:text="${title}"></h1></div>
-
+    <div class="title card-box">
+        <h1 class="mt-4" th:text="${title}"></h1>
+    </div>
+    <div class="signup-error">
+        <h3 class="error signup-problem" th:text="${signupConfirmError}"></h3>
+    </div>
     <form th:action="${signupAction}" method="post" enctype="multipart/form-data">
         <input type="text" th:value="${signUpPageUrl}" hidden="hidden" readonly name="signUpPageUrl">
         <div class="card-box">

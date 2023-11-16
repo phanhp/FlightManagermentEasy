@@ -1,12 +1,11 @@
 package com.example.FlightManagermentEasy.service.service.flight.aircraft;
 
-import com.example.FlightManagermentEasy.dto.flight.FlightDTO;
+import com.example.FlightManagermentEasy.exception.FetchDataException;
+import com.example.FlightManagermentEasy.exception.InvalidDataException;
 import com.example.FlightManagermentEasy.dto.flight.aircraft.AircraftDTO;
-import com.example.FlightManagermentEasy.entity.MyTime;
 import com.example.FlightManagermentEasy.entity.Ticket;
 import com.example.FlightManagermentEasy.entity.flight.Flight;
 import com.example.FlightManagermentEasy.entity.flight.aircraft.*;
-import com.example.FlightManagermentEasy.entity.user.bank.PaymentHistory;
 import com.example.FlightManagermentEasy.repository.MyTimeRepository;
 import com.example.FlightManagermentEasy.repository.TicketRepository;
 import com.example.FlightManagermentEasy.repository.flight.FlightRepository;
@@ -18,6 +17,7 @@ import com.example.FlightManagermentEasy.service.dtoconverter.ObjectConverter;
 import com.example.FlightManagermentEasy.service.service.TicketService;
 import com.example.FlightManagermentEasy.service.service.flight.FlightService;
 import com.example.FlightManagermentEasy.service.session.ThisMomentSession;
+import org.hibernate.LazyInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -107,88 +107,386 @@ public class AircraftService {
 
 
     //CRUD
-    public void createAircraft(long airlineId, String aircraftName,
-                               int economySeatRowAmount, int economySeatAmountPerRow,
-                               int businessSeatRowAmount, int businessSeatAmountPerRow) {
-        Airline airline = airlineRepository.findById(airlineId).orElse(null);
+    public void createAircraft(Airline airline, String aircraftName,
+                               int economySeatRowAmount, int businessSeatRowAmount,
+                               int economySeatsPerRow, int businessSeatsPerRow) throws InvalidDataException {
+        if (airline == null) {
+            throw new InvalidDataException("Airline Can Not Be Found");
+        }
         Aircraft aircraft = new Aircraft(aircraftName, airline);
         aircraftRepository.save(aircraft);
-        Cabin economyCabin = new Cabin("Economy", aircraft);
-        Cabin businessCabin = new Cabin("Business", aircraft);
-        cabinRepository.save(economyCabin);
-        cabinRepository.save(businessCabin);
+        Cabin economy = new Cabin("Economy", aircraft);
+        Cabin business = new Cabin("Business", aircraft);
+        cabinRepository.save(economy);
+        cabinRepository.save(business);
         List<String> economySeatRowStringList = muf.autoGenerateSeatRow(economySeatRowAmount);
-        List<String> businessSeatRowStringList = muf.autoGenerateSeatRow(businessSeatRowAmount);
         for (int i = 0; i < economySeatRowStringList.size(); i++) {
-            SeatRow seatRow = new SeatRow(economySeatRowStringList.get(i), economyCabin);
+            SeatRow seatRow = new SeatRow(economySeatRowStringList.get(i), economy);
             seatRowRepository.save(seatRow);
-            for (int j = 0; j < economySeatAmountPerRow; j++) {
+            for (int j = 1; j <= economySeatsPerRow; j++) {
                 Seat seat = new Seat(seatRow.getName() + (j + 1), seatRow);
                 seatRepository.save(seat);
             }
         }
+        List<String> businessSeatRowStringList = muf.autoGenerateSeatRow(businessSeatRowAmount);
         for (int i = 0; i < businessSeatRowStringList.size(); i++) {
-            SeatRow seatRow = new SeatRow(businessSeatRowStringList.get(i), businessCabin);
+            SeatRow seatRow = new SeatRow(businessSeatRowStringList.get(i), economy);
             seatRowRepository.save(seatRow);
-            for (int j = 0; j < economySeatAmountPerRow; j++) {
+            for (int j = 1; j <= businessSeatsPerRow; j++) {
                 Seat seat = new Seat(seatRow.getName() + (j + 1), seatRow);
                 seatRepository.save(seat);
             }
         }
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
-    public void updateAircraft(long aircraftId,
-                               long airlineId, String aircraftName,
-                               int economySeatRow, int economySeat,
-                               int businessSeatRow, int businessSeat) {
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
+    public void createAircraft(long airlineId, String aircraftName,
+                               int economySeatRowAmount, int businessSeatRowAmount,
+                               int economySeatsPerRow, int businessSeatsPerRow) throws InvalidDataException {
         Airline airline = airlineRepository.findById(airlineId).orElse(null);
-        if (airline == null) {
-            airline = new Airline();
-            airlineRepository.save(airline);
-        }
-        Aircraft aircraft = aircraftRepository.findById(aircraftId).orElse(new Aircraft());
-        if (aircraftName == null) {
-            aircraftName = "";
-        }
-        aircraft.setName(aircraftName);
-        aircraft.setAirline(airline);
-        aircraftRepository.save(aircraft);
-
-        Cabin economy;
-        Cabin business;
         try {
-            economy = cabinRepository.findEconomyCabinByAircraftId(aircraft.getId()).get(0);
-        } catch (Exception e) {
-            economy = new Cabin("Economy", aircraft);
-            cabinRepository.save(economy);
+            createAircraft(airline, aircraftName, economySeatRowAmount, businessSeatRowAmount, economySeatsPerRow, businessSeatsPerRow);
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            throw new InvalidDataException(e.getMessage());
         }
 
-        try {
-            business = cabinRepository.findBusinessCabinByAircraftId(aircraft.getId()).get(0);
-        } catch (Exception e) {
-            business = new Cabin("Business", aircraft);
-            cabinRepository.save(business);
-        }
-        reformCabin(economySeat, economySeatRow, economy);
-        reformCabin(businessSeat, businessSeatRow, business);
 
-        List<Flight> flightList = flightRepository.findFlightsByAircraftIdAfterNow(aircraftId, thisMoment);
-        if (flightList != null) {
-            for (int i = 0; i < flightList.size(); i++) {
-                Flight flight = flightList.get(i);
-                List<Seat> seatList = seatRepository.findSeatsByFlightIdWasNotTicketed(flight.getId());
+    }
+
+//    @Transactional(rollbackFor = InvalidDataException.class)
+//    public void updateAircraft(long aircraftId,
+//                               long airlineId, String aircraftName,
+//                               int economySeatRowAmount, int economySeat,
+//                               int businessSeatRow, int businessSeat) {
+//        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
+//        Airline airline = airlineRepository.findById(airlineId).orElse(null);
+//        if (airline == null) {
+//            airline = new Airline();
+//            airlineRepository.save(airline);
+//        }
+//        Aircraft aircraft = aircraftRepository.findById(aircraftId).orElse(new Aircraft());
+//        if (aircraftName == null) {
+//            aircraftName = "";
+//        }
+//        aircraft.setName(aircraftName);
+//        aircraft.setAirline(airline);
+//        aircraftRepository.save(aircraft);
+//
+//        Cabin economy;
+//        Cabin business;
+//        try {
+//            economy = cabinRepository.findEconomyCabinByAircraftId(aircraft.getId()).get(0);
+//        } catch (Exception e) {
+//            economy = new Cabin("Economy", aircraft);
+//            cabinRepository.save(economy);
+//        }
+//
+//        try {
+//            business = cabinRepository.findBusinessCabinByAircraftId(aircraft.getId()).get(0);
+//        } catch (Exception e) {
+//            business = new Cabin("Business", aircraft);
+//            cabinRepository.save(business);
+//        }
+//        try {
+//            reformCabin(economySeat, economySeatRow, economy);
+//        } catch (InvalidDataException e) {
+//            e.printStackTrace();
+//        }
+//
+//        try {
+//            reformCabin(businessSeat, businessSeatRow, business);
+//        } catch (InvalidDataException e) {
+//            e.printStackTrace();
+//        }
+//
+//        List<Flight> flightList = flightRepository.findFlightsByAircraftIdAfterNow(aircraftId, thisMoment);
+//        if (flightList != null) {
+//            for (int i = 0; i < flightList.size(); i++) {
+//                Flight flight = flightList.get(i);
+//                List<Seat> seatList = seatRepository.findSeatsByFlightIdWasNotTicketed(flight.getId());
+//                if (seatList != null) {
+//                    for (int j = 0; j < seatList.size(); j++) {
+//                        Seat seat = seatList.get(j);
+//                        if (isEconomySeat(seat)) {
+//                            double price = flightService.getEconomyPrice(flight);
+//                            try {
+//                                ticketService.createNewTicket(price, seat, flight);
+//                            } catch (Exception e) {
+//
+//                            }
+//                        }
+//                        if (isBussinessSeat(seat)) {
+//                            double price = flightService.getBusinessPrice(flight);
+//                            try {
+//                                ticketService.createNewTicket(price, seat, flight);
+//                            } catch (Exception e) {
+//
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+//    @Transactional(rollbackFor = InvalidDataException.class)
+//    public void reformCabin(int seatNumber, int seatRowNumber, Cabin cabin) throws InvalidDataException {
+//        List<SeatRow> seatRowList = seatRowRepository.findSeatRowsByCabinId(cabin.getId());
+//        if (seatRowList == null) {
+//            seatRowList = new ArrayList<>();
+//        }
+//        int oldSeatRowNumber = seatRowList.size();
+//
+//        for (int i = 0; i < seatRowList.size(); i++) {
+//            try {
+//                reformSeatRow(seatNumber, seatRowList.get(i));
+//            } catch (InvalidDataException e) {
+//                System.out.println("-----reformCabin(int seatNumber, int seatRowNumber, Cabin cabin) fail-----");
+//                throw new InvalidDataException(e.getMessage());
+//            }
+//        }
+//
+//        if (oldSeatRowNumber <= seatRowNumber) {
+//            List<String> newSeatRowList = differentRowList(seatRowNumber, oldSeatRowNumber);
+//            for (int i = 0; i < newSeatRowList.size(); i++) {
+//                SeatRow seatRow = new SeatRow(newSeatRowList.get(i), cabin);
+//                seatRowRepository.save(seatRow);
+//                try {
+//                    reformSeatRow(seatRowNumber, seatRow);
+//                } catch (InvalidDataException e) {
+//                    throw new InvalidDataException(e.getMessage());
+//                }
+//            }
+//        }
+//
+//        if (oldSeatRowNumber > seatRowNumber) {
+//            for (int i = seatRowNumber; i < seatRowList.size(); i++) {
+//                try {
+//                    removeSeatRow(seatRowList.get(i));
+//                    seatRowList.remove(seatRowList.get(i));
+//                } catch (InvalidDataException e) {
+//                    System.out.println("-----reformCabin(int seatNumber, int seatRowNumber, Cabin cabin)-----");
+//                    throw new InvalidDataException(e.getMessage());
+//                }
+//            }
+//        }
+//    }
+
+//    @Transactional(rollbackFor = InvalidDataException.class)
+//    public void reformSeatRow(int seatNumber, SeatRow seatRow) throws InvalidDataException {
+//        List<Seat> seatList = seatRepository.findSeatsBySeatRowId(seatRow.getId());
+//        if (seatList == null) {
+//            seatList = new ArrayList<>();
+//        }
+//        int oldSeatNumber = seatList.size();
+//
+//        if (oldSeatNumber <= seatNumber) {
+//            List<Integer> newSeatList = differentSeatPerRowList(seatNumber, oldSeatNumber);
+//            for (int i = 0; i < newSeatList.size(); i++) {
+//                String name = seatRow.getName() + newSeatList.get(i);
+//                Seat seat = new Seat(name, seatRow);
+//                seatRepository.save(seat);
+//            }
+//        }
+//
+//        if (oldSeatNumber > seatNumber) {
+//            for (int i = seatNumber; i < seatList.size(); i++) {
+//                try {
+//                    removeSeat(seatList.get(i));
+//                } catch (InvalidDataException e) {
+//                    System.out.println("-----reformSeatRow(int seatNumber, SeatRow seatRow)-----");
+//                    throw new InvalidDataException(e.getMessage());
+//                }
+//            }
+//        }
+//
+//    }
+
+    public void fetchRemoveTicketListFromSeat(Seat seat) throws FetchDataException {
+        if (seat != null) {
+            try {
+                List<Ticket> ticketList = seat.getTicketList();
+                if (ticketList != null) {
+                    for (Ticket ticket : ticketList) {
+                        ticket.setSeat(null);
+                        ticketRepository.save(ticket);
+                    }
+                }
+            } catch (LazyInitializationException e) {
+                throw new FetchDataException("Fetch Remove Fail");
+            }
+        }
+    }
+
+    public void removeTicketListFromSeat(Seat seat) {
+        if (seat != null) {
+            try {
+                fetchRemoveTicketListFromSeat(seat);
+            } catch (FetchDataException e) {
+                List<Ticket> ticketList = ticketRepository.findTicketsBySeatId(seat.getId());
+                if (ticketList != null) {
+                    for (Ticket ticket : ticketList) {
+                        ticket.setSeat(null);
+                        ticketRepository.save(ticket);
+                    }
+                }
+            }
+        }
+    }
+
+    public void deleteSeat(Seat seat) {
+        if (seat != null) {
+            removeTicketListFromSeat(seat);
+            seatRepository.delete(seat);
+        }
+    }
+
+    public void deleteSeatRow(SeatRow seatRow) {
+        if (seatRow != null) {
+            try {
+                List<Seat> seatList = seatRow.getSeatList();
                 if (seatList != null) {
-                    for (int j = 0; j < seatList.size(); j++) {
-                        Seat seat = seatList.get(j);
-                        if (isEconomySeat(seat)) {
-                            double price = flightService.getEconomyPrice(flight);
-                            ticketService.createNewTicket(price, seat, flight);
+                    for (Seat seat : seatList) {
+                        deleteSeat(seat);
+                    }
+                }
+                seatRowRepository.delete(seatRow);
+            } catch (LazyInitializationException e) {
+                List<Seat> seatList = seatRepository.findSeatsBySeatRowId(seatRow.getId());
+                if (seatList != null) {
+                    for (Seat seat : seatList) {
+                        deleteSeat(seat);
+                    }
+                }
+                seatRowRepository.delete(seatRow);
+            }
+        }
+    }
+
+    public void deleteCabin(Cabin cabin) {
+        if (cabin != null) {
+            try {
+                List<SeatRow> seatRowList = cabin.getSeatRowList();
+                if (seatRowList != null) {
+                    for (SeatRow seatRow : seatRowList) {
+                        deleteSeatRow(seatRow);
+                    }
+                }
+                cabinRepository.delete(cabin);
+            } catch (LazyInitializationException e) {
+                List<SeatRow> seatRowList = seatRowRepository.findSeatRowsByCabinId(cabin.getId());
+                if (seatRowList != null) {
+                    for (SeatRow seatRow : seatRowList) {
+                        deleteSeatRow(seatRow);
+                    }
+                }
+                cabinRepository.delete(cabin);
+            }
+        }
+    }
+
+    public void fetchDeleteFlightFromAircraft(Aircraft aircraft) throws FetchDataException, InvalidDataException {
+        if (aircraft != null) {
+            try {
+                List<Flight> flightList = aircraft.getFlightList();
+                if (flightList != null) {
+                    for (Flight flight : flightList) {
+                        try {
+                            flightService.deleteFlight(flight);
+                        } catch (InvalidDataException e) {
+                            e.printStackTrace();
+                            throw new InvalidDataException(e.getMessage());
                         }
-                        if (isBussinessSeat(seat)) {
-                            double price = flightService.getBusinessPrice(flight);
-                            ticketService.createNewTicket(price, seat, flight);
+                    }
+                }
+            } catch (LazyInitializationException e) {
+                throw new FetchDataException("Fetch Remove Fail");
+            }
+        }
+    }
+
+    public void deleteFlightFromAircraft(Aircraft aircraft) throws InvalidDataException {
+        if (aircraft != null) {
+            try {
+                fetchDeleteFlightFromAircraft(aircraft);
+            } catch (FetchDataException e) {
+                List<Flight> flightList = flightRepository.findFlightsByAircraftId(aircraft.getId());
+                if (flightList != null) {
+                    for (Flight flight : flightList) {
+                        try {
+                            flightService.deleteFlight(flight);
+                        } catch (InvalidDataException exception) {
+                            e.printStackTrace();
+                            throw new InvalidDataException(e.getMessage());
+                        }
+                    }
+                }
+            } catch (InvalidDataException e) {
+                e.printStackTrace();
+                throw new InvalidDataException(e.getMessage());
+            }
+        }
+    }
+
+    @Transactional(rollbackFor = InvalidDataException.class)
+    public void deleteAircraft(Aircraft aircraft) throws InvalidDataException {
+        if (aircraft != null) {
+            try {
+                List<Cabin> cabinList = aircraft.getCabinList();
+                if (cabinList != null) {
+                    for (Cabin cabin : cabinList) {
+                        deleteCabin(cabin);
+                    }
+                }
+                try {
+                    deleteFlightFromAircraft(aircraft);
+                } catch (InvalidDataException e) {
+                    e.printStackTrace();
+                    throw new InvalidDataException(e.getMessage());
+                }
+                aircraftRepository.delete(aircraft);
+            } catch (LazyInitializationException e) {
+                List<Cabin> cabinList = cabinRepository.findCabinsByAircraftId(aircraft.getId());
+                if (cabinList != null) {
+                    for (Cabin cabin : cabinList) {
+                        deleteCabin(cabin);
+                    }
+                }
+                try {
+                    deleteFlightFromAircraft(aircraft);
+                } catch (InvalidDataException exception) {
+                    e.printStackTrace();
+                    throw new InvalidDataException(e.getMessage());
+                }
+                aircraftRepository.delete(aircraft);
+            }
+        }
+    }
+
+    @Transactional(rollbackFor = InvalidDataException.class)
+    public void deleteAirline(Airline airline) throws InvalidDataException {
+        if (airline != null) {
+            try {
+                List<Aircraft> aircraftList = airline.getAircraftList();
+                if (aircraftList != null) {
+                    for (Aircraft aircraft : aircraftList) {
+                        try {
+                            deleteAircraft(aircraft);
+                        } catch (InvalidDataException e) {
+                            e.printStackTrace();
+                            throw new InvalidDataException(e.getMessage());
+                        }
+                    }
+                }
+            } catch (LazyInitializationException e) {
+                List<Aircraft> aircraftList = aircraftRepository.findAircraftsByAirlineId(airline.getId());
+                if (aircraftList != null) {
+                    for (Aircraft aircraft : aircraftList) {
+                        try {
+                            deleteAircraft(aircraft);
+                        } catch (InvalidDataException exception) {
+                            e.printStackTrace();
+                            throw new InvalidDataException(e.getMessage());
                         }
                     }
                 }
@@ -196,185 +494,21 @@ public class AircraftService {
         }
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
-    public void reformCabin(int seatNumber, int seatRowNumber, Cabin cabin) throws RuntimeException {
-        List<SeatRow> seatRowList = seatRowRepository.findSeatRowsByCabinId(cabin.getId());
-        if (seatRowList == null) {
-            seatRowList = new ArrayList<>();
-        }
-        int oldSeatRowNumber = seatRowList.size();
-
-        for (int i = 0; i < seatRowList.size(); i++) {
-            try {
-                reformSeatRow(seatNumber, seatRowList.get(i));
-            } catch (Exception e) {
-                System.out.println("-----reformCabin(int seatNumber, int seatRowNumber, Cabin cabin) fail-----");
-                throw new RuntimeException();
-            }
-        }
-
-        if (oldSeatRowNumber <= seatRowNumber) {
-            List<String> newSeatRowList = differentRowList(seatRowNumber, oldSeatRowNumber);
-            for (int i = 0; i < newSeatRowList.size(); i++) {
-                SeatRow seatRow = new SeatRow(newSeatRowList.get(i), cabin);
-                seatRowRepository.save(seatRow);
-                try {
-                    reformSeatRow(seatRowNumber, seatRow);
-                } catch (Exception e) {
-                    throw new RuntimeException();
-                }
-            }
-        }
-
-        if (oldSeatRowNumber > seatRowNumber) {
-            for (int i = seatRowNumber; i < seatRowList.size(); i++) {
-                try {
-                    removeSeatRow(seatRowList.get(i));
-                    seatRowList.remove(seatRowList.get(i));
-                } catch (RuntimeException e) {
-                    System.out.println("-----reformCabin(int seatNumber, int seatRowNumber, Cabin cabin)-----");
-                    throw new RuntimeException();
-                }
-            }
+    public String deleteAircraftResult(Aircraft aircraft) {
+        try {
+            deleteAircraft(aircraft);
+            return "Delete Aircraft Successfully";
+        } catch (InvalidDataException e) {
+            e.printStackTrace();
+            return e.getMessage();
         }
     }
 
-    @Transactional(rollbackFor = RuntimeException.class)
-    public void reformSeatRow(int seatNumber, SeatRow seatRow) throws RuntimeException {
-        List<Seat> seatList = seatRepository.findSeatsBySeatRowId(seatRow.getId());
-        if (seatList == null) {
-            seatList = new ArrayList<>();
-        }
-        int oldSeatNumber = seatList.size();
-
-        if (oldSeatNumber <= seatNumber) {
-            List<Integer> newSeatList = differentSeatPerRowList(seatNumber, oldSeatNumber);
-            for (int i = 0; i < newSeatList.size(); i++) {
-                String name = seatRow.getName() + newSeatList.get(i);
-                Seat seat = new Seat(name, seatRow);
-                seatRepository.save(seat);
-            }
-        }
-
-        if (oldSeatNumber > seatNumber) {
-            for (int i = seatNumber; i < seatList.size(); i++) {
-                try {
-                    removeSeat(seatList.get(i));
-                } catch (RuntimeException e) {
-                    System.out.println("-----reformSeatRow(int seatNumber, SeatRow seatRow)-----");
-                    throw new RuntimeException();
-                }
-            }
-        }
-
-    }
-
-    public void removeSeat(Seat seat) throws RuntimeException {
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        List<Ticket> ticketList = ticketRepository.findPurchasedTicketsBySeatIdAfterNow(seat.getId(), thisMoment);
-        if (ticketList != null) {
-            for (int i = 0; i < ticketList.size(); i++) {
-                try {
-                    ticketService.deleteTicket(ticketList.get(i));
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException();
-                }
-            }
-            seatRepository.deleteById(seat.getId());
-        }
-    }
-
-    public void removeSeatRow(SeatRow seatRow) throws RuntimeException {
-        List<Seat> seatList = seatRepository.findSeatsBySeatRowId(seatRow.getId());
-        if (seatList != null) {
-            for (int i = 0; i < seatList.size(); i++) {
-                try {
-                    removeSeat(seatList.get(i));
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                    throw new RuntimeException();
-                }
-            }
-        }
-        seatRowRepository.delete(seatRow);
-    }
-
-    @Transactional(rollbackFor = RuntimeException.class)
-    public void removeCabin(Cabin cabin) throws RuntimeException {
-        List<SeatRow> seatRowList = seatRowRepository.findSeatRowsByCabinId(cabin.getId());
-        if (seatRowList != null) {
-            for (int i = 0; i < seatRowList.size(); i++) {
-                try {
-                    removeSeatRow(seatRowList.get(i));
-                } catch (RuntimeException e) {
-                    throw new RuntimeException();
-                }
-            }
-        }
-        cabin.setAircraft(null);
-        cabinRepository.delete(cabin);
-    }
-
-    @Transactional(rollbackFor = RuntimeException.class)
-    public void removeAircraft(Aircraft aircraft) throws RuntimeException {
-        List<Cabin> cabinList = cabinRepository.findCabinsByAircraftId(aircraft.getId());
-        if (cabinList != null) {
-            for (int i = 0; i < cabinList.size(); i++) {
-                try {
-                    removeCabin(cabinList.get(i));
-                } catch (RuntimeException e) {
-                    throw new RuntimeException();
-                }
-            }
-        }
-        aircraftRepository.delete(aircraft);
-    }
-
-    @Transactional(rollbackFor = RuntimeException.class)
-    public void removeAirline(Airline airline) throws RuntimeException {
-        List<Aircraft> aircraftList = aircraftRepository.findAircraftsByAirlineId(airline.getId());
-        if (aircraftList != null) {
-            for (int i = 0; i < aircraftList.size(); i++) {
-                try {
-                    removeAircraft(aircraftList.get(i));
-                } catch (RuntimeException e) {
-                    throw new RuntimeException();
-                }
-            }
-        }
-        airlineRepository.delete(airline);
-    }
-
-    public void deleteAircraft(long aircraftId) {
+    public String deleteAircraftResult(long aircraftId) {
         Aircraft aircraft = aircraftRepository.findById(aircraftId).orElse(null);
-        if (aircraft != null) {
-            try {
-                removeAircraft(aircraft);
-            } catch (Exception e) {
-            }
-        }
+        return deleteAircraftResult(aircraft);
     }
 
-    public void deleteAirline(long airlineId) {
-        Airline airline = airlineRepository.findById(airlineId).orElse(null);
-        if (airline != null) {
-            try {
-                removeAirline(airline);
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    public List<Cabin> findCabinListByAircraftId(long aicraftId) {
-        List<Cabin> cabinList = cabinRepository.findCabinsByAircraftId(aicraftId);
-        return cabinList;
-    }
-
-    public List<SeatRow> findSeatRowListByCabinId(long cabinId) {
-        List<SeatRow> seatRowList = seatRowRepository.findSeatRowsByCabinId(cabinId);
-        return seatRowList;
-    }
 
     public List<Integer> differentSeatPerRowList(int larger, int smaller) {
         if (larger <= smaller) {
@@ -430,5 +564,21 @@ public class AircraftService {
             }
         }
         return false;
+    }
+
+    public List<Cabin> findCabinListByAircraftId(long aircraftId){
+        List<Cabin> cabinList = cabinRepository.findCabinsByFlightId(aircraftId);
+        return cabinList;
+    }
+
+    public List<SeatRow> findSeatRowListByCabinId(long cabinId){
+        List<SeatRow> seatRowList = seatRowRepository.findSeatRowsByCabinId(cabinId);
+        return seatRowList;
+    }
+
+
+
+    public LocalDateTime thisMoment() {
+        return thisMomentSession.getThisMoment();
     }
 }

@@ -104,7 +104,7 @@
                 </div>
                 <div class="col-lg-6 custom-btn-delete">
                     <button class="btn btn-danger btn-delete d-flex justify-content-center"><a
-                            th:href="@{/}">Delete</a>
+                            th:href="@{/manager/delete-flight/{flightId} (flightId = ${flight.id}) }">Delete</a>
                     </button>
                 </div>
             </div>
@@ -114,13 +114,13 @@
 <!--Pagination-->
 <div class="container">
     <div class="pagination-box row">
-        <a th:href="${homePage}+${firstPage}">
+        <a th:href="${adminViewFlightPage}+${firstPage}">
             <button class="btn-page-control">First Page</button>
         </a>
-        <a th:href="${homePage}+${previousPage}">
+        <a th:href="${adminViewFlightPage}+${previousPage}">
             <button class="btn-page-control">Previous Page</button>
         </a>
-        <form class="page-form" th:action="@{/flight-management/search}" , method="get">
+        <form class="page-form" th:action="@{/admin/view-flights-page/search}" , method="get">
             <input type="number" th:value="${departureCityId}" name="departureCityId" readonly hidden="hidden"
                    style="display: none">
             <input type="number" th:value="${arrivalCityId}" name="arrivalCityId" readonly hidden="hidden"
@@ -136,10 +136,10 @@
             </select>
             <button class="btn-page-control-submit" type="submit">Go</button>
         </form>
-        <a th:href="${homePage}+${nextPage}">
+        <a th:href="${adminViewFlightPage}+${nextPage}">
             <button class="btn-page-control">Next Page</button>
         </a>
-        <a th:href="${homePage}+${lastPage}">
+        <a th:href="${adminViewFlightPage}+${lastPage}">
             <button class="btn-page-control">Last Page</button>
         </a>
     </div>
