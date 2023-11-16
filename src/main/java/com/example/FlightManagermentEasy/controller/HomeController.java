@@ -73,10 +73,7 @@ public class HomeController {
         String pageUrlTitle = "homePage";
         String pageUrl = "/flight-management";
 
-        commonModel.viewFlightPageModel(model, session,
-                departureCityIdOptional, arrivalCityIdOptional, departureTimeOptional,
-                page, pageable,
-                pageUrlTitle, pageUrl);
+        commonModel.viewFlightPageModel(model, session, departureCityIdOptional, arrivalCityIdOptional, departureTimeOptional, page, pageable, pageUrlTitle, pageUrl);
         return "flight-management/home";
     }
 }

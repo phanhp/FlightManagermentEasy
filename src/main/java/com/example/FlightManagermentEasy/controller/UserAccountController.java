@@ -42,7 +42,8 @@ public class UserAccountController {
         String successUrl = "redirect:/user/view-profile-page";
         String profileUrl = "redirect:/user/view-profile-page";
         String updateSuccess = "Image Update Successfully";
-        commonModel.profileManagerModel(model, session, profileUrl, successUrl, updateSuccess);
+
+        commonModel.updateProfile(session, model, profileUrl, successUrl, updateSuccess);
         return "userViewProfile";
     }
 
@@ -53,7 +54,7 @@ public class UserAccountController {
         String successUrl = "redirect:/user/view-profile-page";
         String profileUrl = "redirect:/user/edit-information-page";
         String updateSuccess = "Information Update Successfully";
-        commonModel.profileManagerModel(model, session, profileUrl, successUrl, updateSuccess);
+        commonModel.updateProfile(session, model, profileUrl, successUrl, updateSuccess);
         return "userEditProfileInformation";
     }
 
@@ -63,7 +64,7 @@ public class UserAccountController {
         String successUrl = "redirect:/user/view-profile-page";
         String profileUrl = "redirect:/user/edit-password-page";
         String updateSuccess = "Password Update Successfully";
-        commonModel.profileManagerModel(model, session, profileUrl, successUrl, updateSuccess);
+        commonModel.updateProfile(session, model, profileUrl, successUrl, updateSuccess);
         return "userEditProfilePassword";
     }
 
@@ -147,4 +148,6 @@ public class UserAccountController {
         session.setAttribute("updateSuccessMessage", updateSuccess);
         return successUrl;
     }
+
+
 }

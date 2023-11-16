@@ -83,10 +83,7 @@ public class ManagerFlightController {
         String pageUrlTitle = "adminViewFlightPage";
         String pageUrl = "/admin/view-flights-page";
 
-        commonModel.viewFlightPageModel(model, session,
-                departureCityIdOptional, arrivalCityIdOptional, departureTimeOptional,
-                page, pageable,
-                pageUrlTitle, pageUrl);
+        commonModel.viewFlightPageModel(model, session, departureCityIdOptional, arrivalCityIdOptional, departureTimeOptional, page, pageable, pageUrlTitle, pageUrl);
         return "managerViewFlight";
     }
 

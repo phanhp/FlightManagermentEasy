@@ -35,10 +35,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.Base64;
@@ -46,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Controller
 public class CommonModel {
     @Autowired
     LoginSession loginSession;
@@ -156,9 +160,9 @@ public class CommonModel {
     }
 
     public void pageItemModel(Model model, HttpSession session, Optional<Integer> page,
-                              String pageItemTitle, Page<?> pageItem,
-                              String pageUrlTitle, String basePageUrl,
-                              String search) {
+                                String pageItemTitle, Page<?> pageItem,
+                                String pageUrlTitle, String basePageUrl,
+                                String search) {
         int totalPage = pageItem.getTotalPages();
         int currentPage = page.orElse(0);
         int firstPage = 0;
@@ -223,7 +227,8 @@ public class CommonModel {
     }
 
     //Header Model
-    public void headerModel(Model model) {
+    @GetMapping("/headerModel")
+    public String headerModel(Model model) {
         bookingSession.reloadBookingSession();
         model.addAttribute("loginSession", loginSession);
         model.addAttribute("bookingSession", bookingSession);
@@ -234,15 +239,17 @@ public class CommonModel {
             String accountImgError = "Can Not Load Account Image";
             model.addAttribute("accountImgError", accountImgError);
         }
+        return "flight-management/fragments";
     }
 
     //SignUp Model
+
     public void signupPageModel(HttpSession session,
-                                Model model,
-                                String signupAction,
-                                String title,
-                                String signUpPageUrl,
-                                String submit) {
+                                  Model model,
+                                  String signupAction,
+                                  String title,
+                                  String signUpPageUrl,
+                                  String submit) {
         model.addAttribute("signupAction", signupAction);
         model.addAttribute("title", title);
         model.addAttribute("signUpPageUrl", signUpPageUrl);
@@ -384,52 +391,9 @@ public class CommonModel {
         return count == 0;
     }
 
-    //Profile Model
-    public void profileManagerModel(Model model,
-                                    HttpSession session,
-                                    String profilePageUrl,
-                                    String successUrl,
-                                    String updateSuccess) {
-        Account account = loginSession.getAccount();
-        AccountDTO accountDTO = objectConverter.toAccountDTO(account);
-        model.addAttribute("account", accountDTO);
-
-        model.addAttribute("updateSuccess", updateSuccess);
-
-        model.addAttribute("oldPassword", account.getPassword());
-        model.addAttribute("emptyString", "");
-
-        String accountImgError = (String) session.getAttribute("accountImgError");
-        model.addAttribute("accountImgError", accountImgError);
-        session.setAttribute("accountImgError", "");
-
-        String CUAccountError = (String) session.getAttribute("CUAccountError");
-        model.addAttribute("CUAccountError", CUAccountError);
-        session.setAttribute("CUAccountError", "");
-
-        String oldPasswordError = (String) session.getAttribute("oldPasswordError");
-        model.addAttribute("oldPasswordError", oldPasswordError);
-        session.setAttribute("oldPasswordError", "");
-
-        String passwordError = (String) session.getAttribute("passwordError");
-        model.addAttribute("passwordError", passwordError);
-        session.setAttribute("passwordError", "");
-
-        String updateSuccessMessage = (String) session.getAttribute("updateSuccessMessage");
-        model.addAttribute("updateSuccessMessage", updateSuccessMessage);
-        session.setAttribute("updateSuccessMessage", "");
-
-        model.addAttribute("profileUrl", profilePageUrl);
-        model.addAttribute("successUrl", successUrl);
-
-        genderListModel(model);
-        headerModel(model);
-    }
-
-    //Cart Model
     public void cartPageModel(Model model, HttpSession session, Optional<Integer> page,
-                              String ticketListPageTitle, Page<List<Ticket>> ticketListPage,
-                              String cartPageUrlTitle, String cartPageUrl) {
+                                String ticketListPageTitle, Page<List<Ticket>> ticketListPage,
+                                String cartPageUrlTitle, String cartPageUrl) {
         model.addAttribute("promotionTicketRepository", promotionTicketRepository);
         model.addAttribute("aircraftService", aircraftService);
         model.addAttribute("flightService", flightService);
@@ -445,11 +409,11 @@ public class CommonModel {
 
     //ViewFlight Model
     public void viewFlightPageModel(Model model, HttpSession session,
-                                    Optional<Long> departureCityIdOptional,
-                                    Optional<Long> arrivalCityIdOptional,
-                                    Optional<String> departureTimeOptional,
-                                    Optional<Integer> page, Pageable pageable,
-                                    String pageUrlTitle, String basePageUrl) {
+                                      Optional<Long> departureCityIdOptional,
+                                      Optional<Long> arrivalCityIdOptional,
+                                      Optional<String> departureTimeOptional,
+                                      Optional<Integer> page, Pageable pageable,
+                                      String pageUrlTitle, String basePageUrl) {
         long departureCityId = departureCityIdOptional.orElse(Long.valueOf(0));
         long arrivalCityId = arrivalCityIdOptional.orElse(Long.valueOf(0));
         String departureTimeString = departureTimeOptional.orElse("");
@@ -491,5 +455,46 @@ public class CommonModel {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public void updateProfile(HttpSession session,
+                                Model model,
+                                String profilePageUrl,
+                                String successUrl,
+                                String updateSuccess) {
+        Account account = loginSession.getAccount();
+        AccountDTO accountDTO = objectConverter.toAccountDTO(account);
+        model.addAttribute("account", accountDTO);
+
+        model.addAttribute("updateSuccess", updateSuccess);
+
+        model.addAttribute("oldPassword", account.getPassword());
+        model.addAttribute("emptyString", "");
+
+        String accountImgError = (String) session.getAttribute("accountImgError");
+        model.addAttribute("accountImgError", accountImgError);
+        session.setAttribute("accountImgError", "");
+
+        String CUAccountError = (String) session.getAttribute("CUAccountError");
+        model.addAttribute("CUAccountError", CUAccountError);
+        session.setAttribute("CUAccountError", "");
+
+        String oldPasswordError = (String) session.getAttribute("oldPasswordError");
+        model.addAttribute("oldPasswordError", oldPasswordError);
+        session.setAttribute("oldPasswordError", "");
+
+        String passwordError = (String) session.getAttribute("passwordError");
+        model.addAttribute("passwordError", passwordError);
+        session.setAttribute("passwordError", "");
+
+        String updateSuccessMessage = (String) session.getAttribute("updateSuccessMessage");
+        model.addAttribute("updateSuccessMessage", updateSuccessMessage);
+        session.setAttribute("updateSuccessMessage", "");
+
+        model.addAttribute("profileUrl", profilePageUrl);
+        model.addAttribute("successUrl", successUrl);
+
+        genderListModel(model);
+        headerModel(model);
     }
 }

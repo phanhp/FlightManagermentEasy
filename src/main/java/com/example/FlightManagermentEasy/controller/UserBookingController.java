@@ -105,7 +105,7 @@ public class UserBookingController {
 
         commonModel.cartPageModel(model, session, page, ticketListPageTitle, ticketListPage, pageUrlTitle, pageUrl);
         commonModel.headerModel(model);
-        return "userViewCartForm";
+        return "userViewCart";
     }
 
     //UnBook Ticket
@@ -131,7 +131,7 @@ public class UserBookingController {
 
         commonModel.cartPageModel(model, session, page, ticketListPageTitle, ticketListPage, pageUrlTitle, pageUrl);
         commonModel.headerModel(model);
-        return "userViewPurchasedTicketsForm";
+        return "userViewPurchasedTickets";
     }
 
     //UnBook Ticket

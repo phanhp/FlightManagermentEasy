@@ -23,6 +23,7 @@ import com.example.FlightManagermentEasy.service.service.entityStatus.TicketStat
 
 import com.example.FlightManagermentEasy.service.session.LoginSession;
 import com.example.FlightManagermentEasy.service.session.ThisMomentSession;
+import org.hibernate.LazyInitializationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +61,63 @@ public class TicketService {
     LoginSession loginSession;
     @Autowired
     MUF muf;
+
+    //************************ PROMOTION TICKET *************************************
+    public void unUsedPromotionTicket(PromotionTicket promotionTicket) throws InvalidDataException {
+        if (promotionTicket == null) {
+            throw new InvalidDataException("Promotion Ticket Can Not Be Found");
+        }
+        Ticket ticket = ticketRepository.findTicketByPromotionTicketId(promotionTicket.getId());
+        if (ticket != null) {
+            if (ticket.isPurchased()) {
+                throw new InvalidDataException("Can Not Un Used Promotion Ticket On A Purchased Ticket");
+            }
+            Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
+            if (flight != null) {
+                if (flight.getDepartureTime().isBefore(thisMoment())) {
+                    throw new InvalidDataException("Can Not Un Used Promotion Ticket Because Flight Was Performed");
+                }
+            }
+            promotionTicket.setTicket(null);
+            promotionTicket.setAvailable(true);
+        }
+        if (promotionTicket.getExpiredDate().isBefore(thisMoment())) {
+            promotionTicket.setAvailable(false);
+            promotionTicketRepository.save(promotionTicket);
+            throw new InvalidDataException("Can Not Un Used Promotion Ticket Because It Was Expired");
+        }
+        promotionTicketRepository.save(promotionTicket);
+    }
+
+    public void usePromotionTicket(PromotionTicket promotionTicket, Ticket ticket) throws InvalidDataException {
+        if (promotionTicket == null) {
+            throw new InvalidDataException("Promotion Ticket Can Not Be Found");
+        }
+        if (ticket == null) {
+            throw new InvalidDataException("Ticket Can Not Be Found");
+        }
+        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
+        if (ticket.isPurchased()) {
+            throw new InvalidDataException("Can Not Used Promotion Ticket On A Purchased Ticket");
+        }
+        Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
+        if (flight == null) {
+            throw new InvalidDataException("Flight Can Not Be Found");
+        }
+        if (flight.getDepartureTime().isBefore(thisMoment)) {
+            throw new InvalidDataException("Can Not Un Used Promotion Ticket Because Flight Was Performed");
+        }
+        if (promotionTicket.getExpiredDate().isBefore(thisMoment)) {
+            throw new InvalidDataException("Can Not Un Used Promotion Ticket Because It Was Expired");
+        }
+        if (!promotionTicket.isAvailable()) {
+            throw new InvalidDataException("Promotion Ticket Is Not Available");
+        }
+        promotionTicket.setTicket(ticket);
+        promotionTicket.setAvailable(false);
+        promotionTicketRepository.save(promotionTicket);
+    }
+
 
     //************************ PASSENGER **************************************
     public Passenger findPassengerByTicketId(long ticketId) {
@@ -256,62 +314,6 @@ public class TicketService {
         }
     }
 
-    //************************ PROMOTION TICKET *************************************
-    public void unUsedPromotionTicket(PromotionTicket promotionTicket) throws InvalidDataException {
-        if (promotionTicket == null) {
-            throw new InvalidDataException("Promotion Ticket Can Not Be Found");
-        }
-        Ticket ticket = ticketRepository.findTicketByPromotionTicketId(promotionTicket.getId());
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        if (ticket != null) {
-            if (ticket.isPurchased()) {
-                throw new InvalidDataException("Can Not Un Used Promotion Ticket On A Purchased Ticket");
-            }
-            Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
-            if (flight != null) {
-                if (flight.getDepartureTime().isBefore(thisMoment)) {
-                    throw new InvalidDataException("Can Not Un Used Promotion Ticket Because Flight Was Performed");
-                }
-            }
-            promotionTicket.setTicket(null);
-            promotionTicket.setAvailable(true);
-        }
-        if (promotionTicket.getExpiredDate().isBefore(thisMoment)) {
-            promotionTicket.setAvailable(false);
-            promotionTicketRepository.save(promotionTicket);
-            throw new InvalidDataException("Can Not Un Used Promotion Ticket Because It Was Expired");
-        }
-        promotionTicketRepository.save(promotionTicket);
-    }
-
-    public void usePromotionTicket(PromotionTicket promotionTicket, Ticket ticket) throws InvalidDataException {
-        if (promotionTicket == null) {
-            throw new InvalidDataException("Promotion Ticket Can Not Be Found");
-        }
-        if (ticket == null) {
-            throw new InvalidDataException("Ticket Can Not Be Found");
-        }
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
-        if (ticket.isPurchased()) {
-            throw new InvalidDataException("Can Not Used Promotion Ticket On A Purchased Ticket");
-        }
-        Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
-        if (flight == null) {
-            throw new InvalidDataException("Flight Can Not Be Found");
-        }
-        if (flight.getDepartureTime().isBefore(thisMoment)) {
-            throw new InvalidDataException("Can Not Un Used Promotion Ticket Because Flight Was Performed");
-        }
-        if (promotionTicket.getExpiredDate().isBefore(thisMoment)) {
-            throw new InvalidDataException("Can Not Un Used Promotion Ticket Because It Was Expired");
-        }
-        if (!promotionTicket.isAvailable()) {
-            throw new InvalidDataException("Promotion Ticket Is Not Available");
-        }
-        promotionTicket.setTicket(ticket);
-        promotionTicket.setAvailable(false);
-        promotionTicketRepository.save(promotionTicket);
-    }
 
     //************************ TICKET **************************************
     //Reload Ticket From A List
@@ -358,6 +360,11 @@ public class TicketService {
 
     public double ticketCost(Ticket ticket) {
         return ticket.getPrice() * (1 - priceReductionForTicket(ticket));
+    }
+
+    //This Moment
+    public LocalDateTime thisMoment() {
+        return thisMomentSession.getThisMoment();
     }
 
 }
