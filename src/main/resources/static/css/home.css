@@ -9,9 +9,7 @@
 }
 
 .search-box {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    margin-left: 2px;
+    margin-left: 5px;
     width: 100%;
 }
 
@@ -176,4 +174,8 @@
     font-weight: bold;
     font-size: 15px;
     color: #7f009f;
+}
+.search, .clear-search{
+    margin-top: 15px;
+    margin-bottom: 15px;
 }

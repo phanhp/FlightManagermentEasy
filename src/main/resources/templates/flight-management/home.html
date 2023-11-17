@@ -13,48 +13,62 @@
 <header class="header" th:replace="flight-management/fragments.html :: header"></header>
 <!--Search bar-->
 <div class="container">
-    <form th:action="@{/flight-management/search}" method="get">
-        <div class="search-box row">
-            <div class="col-lg-3">
-                <label for="departureCityId">Departure City</label>
-                <select class="form-control" id="departureCityId" name="departureCityId">
-                    <option th:value="0"
-                            selected>Choose Departure Country
-                    </option>
-                    <th:block th:each="city : ${cityList}">
-                        <option th:value="${city.id}"
-                                th:text="${city.name}"
-                                th:selected="${city.id==departureCityId}"></option>
-                    </th:block>
-                </select>
-            </div>
-            <div class="col-lg-3">
-                <label for="arrivalCityId">Arrival City</label>
-                <select class="form-control" id="arrivalCityId" name="arrivalCityId">
-                    <option th:value="0"
-                            selected>Choose Arrival Country
-                    </option>
-                    <th:block th:each="city : ${cityList}">
-                        <option th:value="${city.id}"
-                                th:text="${city.name}"
-                                th:selected="${city.id== arrivalCityId}"></option>
-                    </th:block>
-                </select>
-            </div>
-            <div class="col-lg-3 time-search">
-                <label for="departureTime">Departure Time</label>
-                <input class="form-control"
-                       type="date"
-                       id="departureTime"
-                       name="departureTime"
-                       th:checked="${departureTime!=null}"
-                       th:value="${departureTime}">
-            </div>
-            <div class="col-lg-3 btn-search-container">
-                <button type="submit" class="btn btn-success btn-search">Search</button>
-            </div>
+    <div class="row">
+        <div class="col-lg-10 search">
+            <form th:action="@{/flight-management/search}" method="get">
+                <div class="search-box row">
+                    <div class="col-lg-3">
+                        <label for="departureCityId">Departure City</label>
+                        <select class="form-control" id="departureCityId" name="departureCityId">
+                            <option th:value="0"
+                                    selected>Choose Departure Country
+                            </option>
+                            <th:block th:each="city : ${cityList}">
+                                <option th:value="${city.id}"
+                                        th:text="${city.name}"
+                                        th:selected="${city.id==departureCityId}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <label for="arrivalCityId">Arrival City</label>
+                        <select class="form-control" id="arrivalCityId" name="arrivalCityId">
+                            <option th:value="0"
+                                    selected>Choose Arrival Country
+                            </option>
+                            <th:block th:each="city : ${cityList}">
+                                <option th:value="${city.id}"
+                                        th:text="${city.name}"
+                                        th:selected="${city.id== arrivalCityId}"></option>
+                            </th:block>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 time-search">
+                        <label for="departureTime">Departure Time</label>
+                        <input class="form-control"
+                               type="date"
+                               id="departureTime"
+                               name="departureTime"
+                               th:checked="${departureTime!=null}"
+                               th:value="${departureTime}">
+                    </div>
+                    <div class="col-lg-3 btn-search-container">
+                        <button type="submit" class="btn btn-success btn-search">Search</button>
+                    </div>
+                </div>
+            </form>
         </div>
-    </form>
+        <div class="col-lg-2 clear-search">
+            <form th:action="@{/flight-management/search}" method="get">
+                <input type="number" name="departureCityId" th:value="0" readonly hidden="hidden">
+                <input type="number" name="arrivalCityId" th:value="0" readonly hidden="hidden">
+                <input type="date" name="departureTime" readonly hidden="hidden">
+                <div class="btn-search-container">
+                    <button type="submit" class="btn btn-success btn-search">Clear</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 <!--Flight List-->
 <div class="container flight-list">

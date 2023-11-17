@@ -137,39 +137,37 @@ public class TicketService {
         }
     }
 
-    public Passenger findPassengerByIdentity(String identity) {
-        Passenger passenger = passengerRepository.findPassengerByIdentity(identity);
-        if (passenger == null) {
-            passenger = new Passenger();
-        }
-        return passenger;
-    }
-
     public void setPassengerToTicket(Ticket ticket, String identity, String name,
                                      String address, String dob, String gender) throws InvalidDataException {
         if (ticket == null) {
             throw new InvalidDataException("Ticket Can Not Be Found");
         }
-        LocalDateTime thisMoment = thisMomentSession.getThisMoment();
         Flight flight = flightRepository.findFlightsByTicketId(ticket.getId());
         if (flight == null) {
             throw new InvalidDataException("Flight Can Not Be Found");
         }
-        if (flight.getDepartureTime().isBefore(thisMoment)) {
+        if (flight.getDepartureTime().isBefore(thisMoment())) {
             throw new InvalidDataException("Can Not Set Passenger To This Flight");
         }
-        ticket = ticketStatus.reloadTicketStatus(ticket);
-        Passenger passenger = findPassengerByIdentity(identity);
-        if (identity != null) {
-            passenger.setIdentity(identity);
-        } else {
+        if (identity == null) {
             throw new InvalidDataException("Identity Can Not Be Empty");
         }
-        if (name != null) {
-            passenger.setName(name);
-        } else {
-            throw new InvalidDataException("Name Can Not Be Empty");
+        if (identity.isEmpty()) {
+            throw new InvalidDataException("Identity Can Not Be Empty");
         }
+        if (name == null) {
+            throw new InvalidDataException("Name Must Be Filled");
+        }
+        if (name.isEmpty()) {
+            throw new InvalidDataException("Name Must Be Filled");
+        }
+        ticket = ticketStatus.reloadTicketStatus(ticket);
+        Passenger passenger = passengerRepository.findPassengerByIdentity(identity);
+        if (passenger == null) {
+            passenger = new Passenger();
+        }
+        passenger.setIdentity(identity);
+        passenger.setName(name);
         passenger.setAddress(address);
         passenger.setDob(muf.stringToLocalDate(dob));
         passenger.setGender(gender);
@@ -178,15 +176,21 @@ public class TicketService {
         ticketRepository.save(ticket);
     }
 
-    public void setPassengerToTicket(long ticketId, String identity, String name,
-                                     String address, String dob, String gender) throws InvalidDataException {
-        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+    public String setPassengerToTicketResult(Ticket ticket, String identity, String name,
+                                             String address, String dob, String gender) {
         try {
             setPassengerToTicket(ticket, identity, name, address, dob, gender);
+            return "Set Passenger To Ticket Success";
         } catch (InvalidDataException e) {
             e.printStackTrace();
-            throw new InvalidDataException(e.getMessage());
+            return e.getMessage();
         }
+    }
+
+    public String setPassengerToTicketResult(long ticketId, String identity, String name,
+                                             String address, String dob, String gender){
+        Ticket ticket = ticketRepository.findById(ticketId).orElse(null);
+        return setPassengerToTicketResult(ticket, identity, name, address, dob, gender);
     }
 
     //************************ SEAT **************************************

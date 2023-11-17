@@ -380,7 +380,7 @@ public class UserBookingController {
 
         commonModel.genderListModel(model);
         commonModel.headerModel(model);
-        return "userViewPurchasedTicketsForm";
+        return "userViewPurchasedTickets";
     }
 
 }
