@@ -5,7 +5,7 @@
     <title>Forget Account</title>
     <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
     <link rel="stylesheet" th:href="@{https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css}">
-    <link th:href="@{/css/loginForm.css.css}" rel="stylesheet" type="text/css"/>
+    <link th:href="@{/css/signupForm.css}" rel="stylesheet" type="text/css"/>
     <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -13,9 +13,6 @@
 <div class="container">
     <div class="title card-box">
         <h1 class="mt-4" th:text="${title}"></h1>
-    </div>
-    <div class="signup-error">
-        <h3 class="error signup-problem" th:text="${signupConfirmError}"></h3>
     </div>
     <form th:action="${signupAction}" method="post" enctype="multipart/form-data">
         <input type="text" th:value="${pageUrl}" hidden="hidden" readonly name="pageUrl">

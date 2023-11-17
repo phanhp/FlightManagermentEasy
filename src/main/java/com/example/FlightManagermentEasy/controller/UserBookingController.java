@@ -2,11 +2,16 @@ package com.example.FlightManagermentEasy.controller;
 
 import com.example.FlightManagermentEasy.dto.flight.FlightDTO;
 import com.example.FlightManagermentEasy.entity.Ticket;
+import com.example.FlightManagermentEasy.entity.flight.aircraft.Aircraft;
+import com.example.FlightManagermentEasy.entity.flight.aircraft.Cabin;
+import com.example.FlightManagermentEasy.entity.flight.aircraft.Seat;
+import com.example.FlightManagermentEasy.entity.flight.aircraft.SeatRow;
 import com.example.FlightManagermentEasy.entity.user.Passenger;
 import com.example.FlightManagermentEasy.entity.user.bank.BankAccount;
 import com.example.FlightManagermentEasy.entity.user.booking.PromotionTicket;
 import com.example.FlightManagermentEasy.repository.TicketRepository;
 import com.example.FlightManagermentEasy.repository.flight.FlightRepository;
+import com.example.FlightManagermentEasy.repository.flight.aircraft.AircraftRepository;
 import com.example.FlightManagermentEasy.repository.user.bank.BankAccountRepository;
 import com.example.FlightManagermentEasy.repository.user.booking.PromotionTicketRepository;
 import com.example.FlightManagermentEasy.service.CommonModel;
@@ -30,10 +35,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 public class UserBookingController {
@@ -41,6 +43,8 @@ public class UserBookingController {
     BookingSession bookingSession;
     @Autowired
     TicketRepository ticketRepository;
+    @Autowired
+    AircraftRepository aircraftRepository;
     @Autowired
     FlightRepository flightRepository;
     @Autowired
@@ -68,6 +72,87 @@ public class UserBookingController {
     public String userBookingTicketPage(Model model,
                                         @PathVariable("flightId") long flightId,
                                         HttpSession session) {
+        Aircraft aircraft = flightService.findAircraftByFlightId(flightId);
+        if (aircraft != null) {
+            model.addAttribute("aircraftName", aircraft.getName());
+        }
+
+//        List<String> allCabinNameList = new ArrayList<>();
+//
+//        List<List<List<Map<String, Ticket>>>> cabinListMap = new ArrayList<>();
+//        List<List<List<String>>> cabinNameList = new ArrayList<>();
+//        //define : 0 = available
+//        // true = isTicketDisableWithThisBooking(ticket.id) == true
+//        // false = isTicketDisableWithThisBooking(ticket.id) == false
+//        List<List<List<Boolean>>> cabinBookCheck = new ArrayList<>();
+//        // true = isTicketPurchasedByThisAccount(ticket.id) == true
+//        // false = isTicketPurchasedByThisAccount(ticket.id) == false
+//        List<List<List<Boolean>>> cabinPurchaseCheck = new ArrayList<>();
+//
+//        List<Cabin> cabinList = flightService.findCabinListByFlightId(flightId);
+//        if (cabinList != null) {
+//            for (int i = 0; i < cabinList.size(); i++) {
+//                Cabin cabin = cabinList.get(i);
+//                allCabinNameList.add(cabin.getName());
+//
+//                List<List<Map<String, Ticket>>> seatRowListMap = new ArrayList<>();
+//                List<List<String>> seatRowNameList = new ArrayList<>();
+//                List<List<Boolean>> seatRowBookCheck = new ArrayList<>();
+//                List<List<Boolean>> seatRowPurchaseCheck = new ArrayList<>();
+//
+//                List<SeatRow> seatRowList = aircraftService.findSeatRowListByCabinId(cabin.getId());
+//                if (seatRowList != null) {
+//                    for (int j = 0; j < seatRowList.size(); j++) {
+//                        SeatRow seatRow = seatRowList.get(j);
+//
+//                        List<Map<String, Ticket>> seatListMap = new ArrayList<>();
+//                        List<Boolean> seatBookCheck = new ArrayList<>();
+//                        List<Boolean> seatPurchaseCheck = new ArrayList<>();
+//                        List<String> seatNameList = new ArrayList<>();
+//
+//                        List<Seat> seatList = aircraftService.findSeatListBySeatRowId(seatRow.getId());
+//                        if (seatList != null) {
+//                            for (int k = 0; k < seatList.size(); k++) {
+//                                Seat seat = seatList.get(k);
+//
+//                                Map<String, Ticket> ticketEntry = new HashMap<>();
+//                                Boolean bookCheck = false;
+//                                Boolean purchaseCheck = false;
+//                                String seatName = new String();
+//
+//                                Ticket ticket = aircraftService.findTicketBySeatIdAndFlightId(seat.getId(), flightId);
+//                                if (ticket != null) {
+//                                    ticketEntry.put(seat.getName(), ticket);
+//                                    bookCheck = bookingSession.isTicketBelongThisBooking(ticket);
+//                                    purchaseCheck = bookingSession.isTicketPurchasedByThisAccount(ticket);
+//                                    seatName = seat.getName();
+//                                }
+//
+//                                seatListMap.add(ticketEntry);
+//                                seatBookCheck.add(bookCheck);
+//                                seatPurchaseCheck.add(purchaseCheck);
+//                                seatNameList.add(seatName);
+//                            }
+//                        }
+//                        seatRowListMap.add(seatListMap);
+//                        seatRowBookCheck.add(seatBookCheck);
+//                        seatRowPurchaseCheck.add(seatPurchaseCheck);
+//                        seatRowNameList.add(seatNameList);
+//                    }
+//                }
+//                cabinListMap.add(seatRowListMap);
+//                cabinBookCheck.add(seatRowBookCheck);
+//                cabinPurchaseCheck.add(seatRowPurchaseCheck);
+//                cabinNameList.add(seatRowNameList);
+//            }
+//        }
+//        model.addAttribute("cabinListMap", cabinListMap);
+//        model.addAttribute("cabinBookCheck", cabinBookCheck);
+//        model.addAttribute("cabinPurchaseCheck", cabinPurchaseCheck);
+//        model.addAttribute("cabinNameList", cabinNameList);
+//
+//        model.addAttribute("allCabinNameList", allCabinNameList);
+
         bookingSession.reloadBookingSession();
         model.addAttribute("flightId", flightId);
         model.addAttribute("flight", flightService.findFlightDTOById(flightId));
@@ -78,7 +163,7 @@ public class UserBookingController {
         model.addAttribute("loginSession", loginSession);
 
         commonModel.headerModel(model);
-        return "userSeatBookingForm";
+        return "userSeatBooking";
     }
 
     //Book Ticket
@@ -88,6 +173,9 @@ public class UserBookingController {
                                     @RequestParam(value = "accountId", required = true) long accountId,
                                     HttpSession session) {
         List<Long> selectedTicketIdList = optionalSelectedTicketIdList.orElse(new ArrayList<>());
+        for (int i =0; i< selectedTicketIdList.size(); i++){
+            System.out.println(selectedTicketIdList.get(i));
+        }
         bookingSession.addListTicketToCartBySelectedId(selectedTicketIdList, flightId, accountId);
         return "redirect:/user/cart-page";
     }
@@ -234,7 +322,7 @@ public class UserBookingController {
         List<PromotionTicket> promotionTicketList = promotionTicketRepository.findPromotionTicketsByTicketId(ticketId);
         model.addAttribute("promotionTicketList", promotionTicketList);
 
-        double currentReduction = ticketService.priceReductionForTicket(ticket)*100;
+        double currentReduction = ticketService.priceReductionForTicket(ticket) * 100;
         double currentTicketPrice = ticketService.ticketCost(ticket);
         double orignialPrice = ticket.getPrice();
         DecimalFormat decimalFormat = new DecimalFormat("0.00");
@@ -265,7 +353,7 @@ public class UserBookingController {
     @GetMapping("/user/bank-account-page")
     public String bankAccountPage(Model model, HttpSession session) {
         commonModel.headerModel(model);
-        return "userBankAccountForm";
+        return "userBankAccount";
     }
 
     @PostMapping("/user/bank-account")

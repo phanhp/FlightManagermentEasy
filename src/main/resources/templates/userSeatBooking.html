@@ -84,8 +84,8 @@
                                                                            th:id="'check_'+${iterStat}"
                                                                            name="selectedTicket">
                                                                     <label th:class="${bookingSession.isTicketPurchasedByThisAccount(ticket.id)} ? 'custom-checkbox-2' : 'custom-checkbox'"
-                                                                           th:data-text="${ticket.seat.name}"
-                                                                           th:text="${ticket.seat.name}"
+                                                                           th:data-text="${ticketService.findSeatNameByTicketId(ticket.id)}"
+                                                                           th:text="${ticketService.findSeatNameByTicketId(ticket.id)}"
                                                                            th:for="'check_'+${iterStat}">
                                                                     </label>
                                                                 </div>
@@ -97,8 +97,8 @@
                                                                            th:id="'check_'+${iterStat}"
                                                                            disabled>
                                                                     <label class="custom-checkbox"
-                                                                           th:data-text="${ticket.seat.name}"
-                                                                           th:text="${ticket.seat.name}"
+                                                                           th:data-text="${ticketService.findSeatNameByTicketId(ticket.id)}"
+                                                                           th:text="${ticketService.findSeatNameByTicketId(ticket.id)}"
                                                                            th:for="'check_'+${iterStat}">
                                                                     </label>
                                                                 </div>

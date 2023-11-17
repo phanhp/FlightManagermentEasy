@@ -127,7 +127,7 @@ public class LoginController {
             session.setAttribute("accountImgError", "Can Not Load Account Image");
         }
         if (loginSession.isAdmin()) {
-            return "redirect:/admin/view-flights-page";
+            return "redirect:/manager/view-flights-page";
         }
         if (loginSession.isManager()) {
             return "redirect:/manager/view-aircraft-page";
@@ -293,8 +293,11 @@ public class LoginController {
         session.setAttribute("forgetPasswordEmailError", "");
         session.setAttribute("forgetEmail", "");
         model.addAttribute("forgetEmail", forgetEmail);
+        model.addAttribute("signupAction", "/flight-management/information-send");
         model.addAttribute("forgetPasswordEmailError", forgetPasswordEmailError);
+        model.addAttribute("submit", "Confirm");
         model.addAttribute("pageUrl", "redirect:/flight-management/forget-password-page");
+        commonModel.headerModel(model);
         return "forgetAccount";
     }
 

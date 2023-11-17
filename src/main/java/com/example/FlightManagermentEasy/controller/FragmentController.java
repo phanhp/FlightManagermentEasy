@@ -6,6 +6,7 @@ import com.example.FlightManagermentEasy.dto.flight.location.AirportDTO;
 import com.example.FlightManagermentEasy.dto.flight.location.CityDTO;
 import com.example.FlightManagermentEasy.dto.flight.location.CountryDTO;
 import com.example.FlightManagermentEasy.dto.flight.location.RouteDTO;
+import com.example.FlightManagermentEasy.dto.user.AccountDTO;
 import com.example.FlightManagermentEasy.entity.Ticket;
 import com.example.FlightManagermentEasy.repository.TicketRepository;
 import com.example.FlightManagermentEasy.repository.flight.location.AirportRepository;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -73,26 +75,8 @@ public class FragmentController {
     @Autowired
     MUF muf;
 
-
-    @GetMapping("/flight-management/header")
-    public String headerController(Model model, HttpSession session) {
-        model.addAttribute("loginSession", loginSession);
-        model.addAttribute("bookingSession", bookingSession);
-
-        String accountImg = (String) session.getAttribute("accountImg");
-        model.addAttribute("accountImg", accountImg);
-        try {
-            accountImg = loginSession.getProfileImage();
-            model.addAttribute("accountImg", accountImg);
-        } catch (Exception e) {
-            String accountImgError = "Can Not Load Account Image";
-            model.addAttribute("accountImgError", accountImgError);
-        }
-        return "flight-management/fragments";
-    }
-
-    @GetMapping("/userViewCartForm")
-    public String userViewCartForm(Model model, Page<List<Ticket>> ticketListPage, List<Integer> integerList) {
+    @GetMapping("/userViewCart")
+    public String userViewCart(Model model, Page<List<Ticket>> ticketListPage, List<Integer> integerList) {
         model.addAttribute("promotionTicketRepository", promotionTicketRepository);
         model.addAttribute("aircraftService", aircraftService);
         model.addAttribute("flightService", flightService);
@@ -110,8 +94,8 @@ public class FragmentController {
         return "userViewCart";
     }
 
-    @GetMapping("/userViewPurchasedTicketForm")
-    public String userViewPurchasedTicketForm(Model model, Page<List<Ticket>> ticketListPage, List<Integer> integerList) {
+    @GetMapping("/userViewPurchasedTickets")
+    public String userViewPurchasedTickets(Model model, Page<List<Ticket>> ticketListPage, List<Integer> integerList) {
         model.addAttribute("promotionTicketRepository", promotionTicketRepository);
         model.addAttribute("paymentResult", "");
         model.addAttribute("aircraftService", aircraftService);
@@ -129,7 +113,7 @@ public class FragmentController {
         return "userViewPurchasedTickets";
     }
 
-    @GetMapping("/adminCreateFlight")
+    @GetMapping("/managerCreateFlight")
     public String adminCreateFlight(Model model, HttpSession session,
                                     List<CountryDTO> countryDTOList, List<CityDTO> cityDTOList,
                                     List<AirportDTO> airportDTOList, List<RouteDTO> routeDTOList,
@@ -143,8 +127,8 @@ public class FragmentController {
         return "managerCreateFlight";
     }
 
-    @GetMapping("/homeFragment")
-    public String homeFragment(Model model, HttpSession session,
+    @GetMapping("/flightManagementHome")
+    public String flightManagementHome(Model model, HttpSession session,
                                List<FlightDTO> flightList,
                                List<CityDTO> cityDTOList,
                                List<Integer> integerList) {
@@ -165,8 +149,8 @@ public class FragmentController {
         return "flight-management/home";
     }
 
-    @GetMapping("/adminViewFlight")
-    public String adminViewFlight(Model model, HttpSession session,
+    @GetMapping("/managerViewFlight")
+    public String managerViewFlight(Model model, HttpSession session,
                                   List<FlightDTO> flightList,
                                   List<CityDTO> cityDTOList,
                                   List<Integer> integerList) {
@@ -185,5 +169,73 @@ public class FragmentController {
         model.addAttribute("currentPage", "");
         model.addAttribute("allPageList", integerList);
         return "managerViewFlight";
+    }
+
+
+    //******************* PROFILE FRAGMENT *****************************
+    @GetMapping("/userViewProfile")
+    public String userViewProfile(Model model){
+        model.addAttribute("profileUrl", "");
+        model.addAttribute("successUrl", "");
+        model.addAttribute("updateSuccess", "");
+
+        model.addAttribute("accountImg","");
+
+        model.addAttribute("account", new AccountDTO());
+
+        model.addAttribute("updateSuccessMessage", "");
+        model.addAttribute("updateFailMessage", "");
+        model.addAttribute("accountId", "");
+
+        model.addAttribute("oldPassword", "");
+
+        model.addAttribute("emptyString", "");
+
+        model.addAttribute("genderList", new ArrayList<>());
+        return "userViewProfile";
+    }
+
+    @GetMapping("/userEditProfileInformation")
+    public String userEditProfileInformation(Model model){
+        model.addAttribute("profileUrl", "");
+        model.addAttribute("successUrl", "");
+        model.addAttribute("updateSuccess", "");
+
+        model.addAttribute("accountImg","");
+
+        model.addAttribute("account", new AccountDTO());
+
+        model.addAttribute("updateSuccessMessage", "");
+        model.addAttribute("updateFailMessage", "");
+        model.addAttribute("accountId", "");
+
+        model.addAttribute("oldPassword", "");
+
+        model.addAttribute("emptyString", "");
+
+        model.addAttribute("genderList", new ArrayList<>());
+        return "userEditProfileInformation";
+    }
+
+    @GetMapping("/userEditProfilePassword")
+    public String userEditProfilePassword(Model model){
+        model.addAttribute("profileUrl", "");
+        model.addAttribute("successUrl", "");
+        model.addAttribute("updateSuccess", "");
+
+        model.addAttribute("accountImg","");
+
+        model.addAttribute("account", new AccountDTO());
+
+        model.addAttribute("updateSuccessMessage", "");
+        model.addAttribute("updateFailMessage", "");
+        model.addAttribute("accountId", "");
+
+        model.addAttribute("oldPassword", "");
+
+        model.addAttribute("emptyString", "");
+
+        model.addAttribute("genderList", new ArrayList<>());
+        return "userEditProfilePassword";
     }
 }

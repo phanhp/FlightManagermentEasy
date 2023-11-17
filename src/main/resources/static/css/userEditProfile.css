@@ -27,7 +27,7 @@
 .error{
     color: red;
     margin-top: 6px;
-    font-weight: normal;
+    font-weight: bold;
     font-size: 15px;
     display: flex;
     justify-content: center;
@@ -36,7 +36,7 @@
 .success{
     color: blue;
     margin-top: 6px;
-    font-weight: normal;
+    font-weight: bold;
     font-size: 15px;
     display: flex;
     justify-content: center;

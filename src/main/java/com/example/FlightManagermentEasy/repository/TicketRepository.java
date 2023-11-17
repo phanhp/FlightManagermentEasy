@@ -91,4 +91,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             "where pr.id = ?1", nativeQuery = true)
     Ticket findTicketByPromotionTicketId(long promotionTicketId);
 
+    @Query(value = "select t.* from tickets t\n" +
+            "join seats s on t.seat_id = s.id\n" +
+            "join flights f on t.flight_id = f.id\n" +
+            "where s.id = ?1 and f.id = ?2", nativeQuery = true)
+    Ticket findTicketBySeatIdAndFlightId(long seatId, long flightId);
 }

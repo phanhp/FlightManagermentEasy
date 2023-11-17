@@ -16,8 +16,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
+import javax.sql.rowset.serial.SerialException;
 import java.io.IOException;
 import java.sql.Blob;
+import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
@@ -177,35 +180,27 @@ public class AccountService {
                                           String email, String identity, String phone,
                                           String address, String dob, String gender,
                                           MultipartFile profileImage, Account account) throws IOException, InvalidDataException {
-        System.out.println("c1");
         if (username == null) {
             throw new InvalidDataException("UserName Must Be Filled");
         }
-        System.out.println("c2");
         if (username.isEmpty()) {
             throw new InvalidDataException("UserName Must Be Filled");
         }
-        System.out.println("c3");
         if (password == null) {
             throw new InvalidDataException("PassWord Must Be Filled");
         }
-        System.out.println("c4");
         if (password.length() < 3) {
             throw new InvalidDataException("PassWord Must Be Longer Than 3");
         }
-        System.out.println("c5");
         if (email == null) {
             throw new InvalidDataException("Email Must Be Filled");
         }
-        System.out.println("c6");
         if (email.isEmpty()) {
             throw new InvalidDataException("Email Must Be Filled");
         }
-        System.out.println("c7");
         if (identity == null) {
             throw new InvalidDataException("Identity Must Be Filled");
         }
-        System.out.println("c8");
         if (identity.isEmpty()) {
             throw new InvalidDataException("Identity Must Be Filled");
         }
@@ -312,7 +307,7 @@ public class AccountService {
         return account;
     }
 
-    public Account updateAccountImage(MultipartFile profileImage, Account account) throws IOException {
+    public Account updateAccountImage(MultipartFile profileImage, Account account) throws InvalidDataException {
         if (profileImage != null) {
             if (!profileImage.isEmpty()) {
                 try {
@@ -320,8 +315,12 @@ public class AccountService {
                     Blob image = new SerialBlob(imgData);
                     account.setImage(image);
                     accountRepository.save(account);
-                } catch (Exception e) {
-                    throw new IOException();
+                } catch (SerialException e) {
+                    throw new InvalidDataException(e.getMessage());
+                } catch (SQLException e) {
+                    throw new InvalidDataException(e.getMessage());
+                } catch (IOException e) {
+                    throw new InvalidDataException(e.getMessage());
                 }
             }
         }
@@ -337,7 +336,7 @@ public class AccountService {
         }
         Account account = accountRepository.findAccountByEmail(email);
         if (account == null) {
-            throw new InvalidDataException("Can Not Find Email From This Account, Input Another Email");
+            throw new InvalidDataException("Email Can Not Be Found, Input Another Email");
         }
         String newPassword = muf.generateRandomKeyInSet(new HashSet<>(), 10);
         String accountName = account.getAccountName();

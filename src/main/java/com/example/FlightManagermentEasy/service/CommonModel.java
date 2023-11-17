@@ -471,14 +471,6 @@ public class CommonModel {
         model.addAttribute("oldPassword", account.getPassword());
         model.addAttribute("emptyString", "");
 
-        String accountImgError = (String) session.getAttribute("accountImgError");
-        model.addAttribute("accountImgError", accountImgError);
-        session.setAttribute("accountImgError", "");
-
-        String CUAccountError = (String) session.getAttribute("CUAccountError");
-        model.addAttribute("CUAccountError", CUAccountError);
-        session.setAttribute("CUAccountError", "");
-
         String oldPasswordError = (String) session.getAttribute("oldPasswordError");
         model.addAttribute("oldPasswordError", oldPasswordError);
         session.setAttribute("oldPasswordError", "");
@@ -487,12 +479,21 @@ public class CommonModel {
         model.addAttribute("passwordError", passwordError);
         session.setAttribute("passwordError", "");
 
-        String updateSuccessMessage = (String) session.getAttribute("updateSuccessMessage");
-        model.addAttribute("updateSuccessMessage", updateSuccessMessage);
-        session.setAttribute("updateSuccessMessage", "");
-
         model.addAttribute("profileUrl", profilePageUrl);
         model.addAttribute("successUrl", successUrl);
+
+        String updateProfileResult = (String) session.getAttribute("updateProfileResult");
+        if(updateProfileResult!=null){
+            if (updateProfileResult.contains("Success")){
+                model.addAttribute("updateSuccessMessage", updateProfileResult);
+            }else {
+                model.addAttribute("updateFailMessage", updateProfileResult);
+            }
+        }
+
+        session.setAttribute("updateProfileResult", "");
+
+        model.addAttribute("accountId", account.getId());
 
         genderListModel(model);
         headerModel(model);

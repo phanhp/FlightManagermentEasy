@@ -10,6 +10,7 @@ import com.example.FlightManagermentEasy.service.service.user.AccountService;
 import com.example.FlightManagermentEasy.service.session.LoginSession;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -68,85 +69,54 @@ public class UserAccountController {
         return "userEditProfilePassword";
     }
 
-    @PostMapping("/user/update-profile")
-    public String updateProfile(@RequestParam(value = "username", required = false) Optional<String> usernameOptional,
-                                @RequestParam(value = "password", required = false) Optional<String> passwordOptional,
-                                @RequestParam(value = "repassword", required = false) Optional<String> repasswordOptional,
-                                @RequestParam(value = "oldPassword", required = false) Optional<String> oldPasswordOptional,
-                                @RequestParam(value = "oldPasswordHide", required = false) Optional<String> oldPasswordHideOptional,
-                                @RequestParam(value = "name", required = false) Optional<String> nameOptional,
-                                @RequestParam(value = "email", required = false) Optional<String> emailOptional,
-                                @RequestParam(value = "identity", required = false) Optional<String> identityOptional,
-                                @RequestParam(value = "phone", required = false) Optional<String> phoneOptional,
-                                @RequestParam(value = "address", required = false) Optional<String> addressOptional,
-                                @RequestParam(value = "dob", required = false) Optional<String> dobOptional,
-                                @RequestParam(value = "gender", required = false) Optional<String> genderOptional,
-                                @RequestParam(value = "profileImage", required = false) Optional<MultipartFile> profileImageOptional,
-                                @RequestParam("profileUrl") String profileUrl,
-                                @RequestParam("successUrl") String successUrl,
-                                @RequestParam("updateSuccess") String updateSuccess,
-                                HttpSession session) {
-        String userName = usernameOptional.orElse(null);
-        String password = passwordOptional.orElse(null);
-        String repassword = repasswordOptional.orElse(null);
-        String oldPassword = oldPasswordOptional.orElse(null);
-        String oldPasswordHide = oldPasswordHideOptional.orElse(null);
-        String name = nameOptional.orElse(null);
-        String email = emailOptional.orElse(null);
-        String identity = identityOptional.orElse(null);
-        String phone = phoneOptional.orElse(null);
-        String address = addressOptional.orElse(null);
-        String dob = dobOptional.orElse(null);
-        String gender = genderOptional.orElse(null);
-        MultipartFile profileImage = profileImageOptional.orElse(null);
-        if (oldPassword != null && oldPasswordHide != null) {
-            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-            if (passwordEncoder.matches(oldPassword, oldPasswordHide)) {
-                if (password != null && repassword != null) {
-                    if (password.equals(repassword)) {
-                        if (password.length() >= 3) {
-                            try {
-                                loginSession.updatePassword(password);
-                            } catch (InvalidDataException e) {
-                                session.setAttribute("passwordError", e.getMessage());
-                                return profileUrl;
-                            }
-                        } else {
-                            session.setAttribute("passwordError", "Password Must Be Longer Or Equal Than 3 Character");
-                            return profileUrl;
-                        }
-                    } else {
-                        session.setAttribute("passwordError", "Password And Confirm-password Must Be Matched");
-                        return profileUrl;
-                    }
-                } else {
-                    try {
-                        loginSession.updateProfile(userName, password, name, email, identity, phone, address, dob, gender, profileImage);
-                    } catch (IOException e) {
-                        session.setAttribute("accountImgError", "Can not load file");
-                        return profileUrl;
-                    } catch (InvalidDataException e) {
-                        session.setAttribute("CUAccountError", "Account Name, Email Or Identity Were Used By Other Accounts");
-                        return profileUrl;
-                    }
-                }
-            } else {
-                session.setAttribute("oldPasswordError", "Wrong Old Password Confirm");
-                return profileUrl;
-            }
-        } else {
-            try {
-                loginSession.updateProfile(userName, password, name, email, identity, phone, address, dob, gender, profileImage);
-            } catch (IOException e) {
-                session.setAttribute("accountImgError", "Can not load file");
-                return profileUrl;
-            } catch (InvalidDataException e) {
-                session.setAttribute("CUAccountError", "Account name, Email or Identity was used by other accounts");
-                return profileUrl;
-            }
-        }
-        session.setAttribute("updateSuccessMessage", updateSuccess);
+    @PostMapping("/user/update-profile-image")
+    public String updateProfileImage(@RequestParam("profileImage") MultipartFile multipartFile,
+                                     @RequestParam("accountId") long accountId,
+                                     @RequestParam("successUrl") String successUrl,
+                                     HttpSession session){
+        String updateProfileResult = loginSession.updateProfileImageResult(multipartFile, accountId);
+        session.setAttribute("updateProfileResult", updateProfileResult);
         return successUrl;
+    }
+
+    @PostMapping("/user/update-profile-information")
+    public String updateProfileInformation(@RequestParam("accountId") long accountId,
+                                           @RequestParam("name") String name,
+                                           @RequestParam("email") String email,
+                                           @RequestParam("identity") String identity,
+                                           @RequestParam("phone") String phone,
+                                           @RequestParam("address") String address,
+                                           @RequestParam("dob") String dob,
+                                           @RequestParam("gender") String gender,
+                                           @RequestParam("profileImage") MultipartFile profileImage,
+                                           @RequestParam("oldPassword") String oldPassword,
+                                           @RequestParam("oldPasswordHide") String oldPasswordHide,
+                                           @RequestParam("successUrl") String successUrl,
+                                           @RequestParam("profileUrl") String profileUrl,
+                                           HttpSession session){
+        String updateProfileResult = loginSession.updateProfileResult(accountId, name, email, identity, phone, address, dob, gender, profileImage, oldPasswordHide, oldPassword);
+        session.setAttribute("updateProfileResult", updateProfileResult);
+        if(updateProfileResult.contains("Success")){
+            return successUrl;
+        }
+        return profileUrl;
+    }
+
+    @PostMapping("/user/update-profile-password")
+    public String updateProfilePassword(@RequestParam("accountId") long accountId,
+                                        @RequestParam("password") String password,
+                                        @RequestParam("repassword") String repassword,
+                                        @RequestParam("oldPassword") String oldPassword,
+                                        @RequestParam("oldPasswordHide") String oldPasswordHide,
+                                        @RequestParam("successUrl") String successUrl,
+                                        @RequestParam("profileUrl") String profileUrl,
+                                        HttpSession session){
+        String updateProfileResult = loginSession.updateProfilePasswordResult(accountId, password, repassword, oldPassword, oldPasswordHide);
+        session.setAttribute("updateProfileResult", updateProfileResult);
+        if(updateProfileResult.contains("Success")){
+            return successUrl;
+        }
+        return profileUrl;
     }
 
 

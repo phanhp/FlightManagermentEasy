@@ -576,7 +576,15 @@ public class AircraftService {
         return seatRowList;
     }
 
+    public List<Seat> findSeatListBySeatRowId(long seatRowId){
+        List<Seat> seatList = seatRepository.findSeatsBySeatRowId(seatRowId);
+        return seatList;
+    }
 
+    public Ticket findTicketBySeatIdAndFlightId(long seatId, long flightId){
+        Ticket ticket = ticketRepository.findTicketBySeatIdAndFlightId(seatId, flightId);
+        return ticket;
+    }
 
     public LocalDateTime thisMoment() {
         return thisMomentSession.getThisMoment();
