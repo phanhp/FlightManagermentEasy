@@ -2,9 +2,61 @@
     margin: 0px;
     padding: 0px;
 }
-.error{
+.error {
     color: red;
     background-color: hotpink;
+}
+.p-option{
+    padding: 10px;
+}
+.p-submit-box, .p-label{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.p-label label{
+    font-weight: bold;
+    color: brown;
+}
+.p-btn{
+    padding: 5px;
+    border-radius: 6px;
+    background-color: greenyellow;
+}
+.p-btn:hover{
+    font-weight: bold;
+    background-color: #398b2f;
+}
+.action-form{
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.action-form form{
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+.support-form-btn a{
+    text-decoration: none;
+}
+.support-btn{
+    width: 180px;
+    border-radius: 6px;
+    padding: 7px;
+    background-color: greenyellow;
+    color: darkblue;
+    border: 2px darkblue solid;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.support-btn:hover{
+    background-color: #376f2d;
+    font-weight: bold;
 }
 .message{
     color: red;
@@ -33,14 +85,14 @@
     margin-left: 20px;
 }
 .ticket-box{
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 10px;
     border: #1c7430 2px solid;
     border-radius: 10px;
     background-color: ghostwhite;
 }
 .ticket-box-business{
-    margin-top: 20px;
+    margin-top: 10px;
     margin-bottom: 10px;
     border: #1c7430 2px solid;
     border-radius: 10px;

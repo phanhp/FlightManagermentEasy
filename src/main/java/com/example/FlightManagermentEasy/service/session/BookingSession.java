@@ -1,5 +1,6 @@
 package com.example.FlightManagermentEasy.service.session;
 
+import com.example.FlightManagermentEasy.entity.user.Passenger;
 import com.example.FlightManagermentEasy.exception.InvalidDataException;
 import com.example.FlightManagermentEasy.entity.Ticket;
 import com.example.FlightManagermentEasy.entity.flight.Flight;
@@ -16,6 +17,7 @@ import com.example.FlightManagermentEasy.repository.user.booking.BookingReposito
 import com.example.FlightManagermentEasy.repository.user.booking.PromotionTicketRepository;
 
 import com.example.FlightManagermentEasy.repository.user.user.AccountRepository;
+import com.example.FlightManagermentEasy.repository.user.user.PassengerRepository;
 import com.example.FlightManagermentEasy.service.service.TicketService;
 import com.example.FlightManagermentEasy.service.service.entityStatus.TicketStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,8 @@ public class BookingSession {
     PromotionTicketRepository promotionTicketRepository;
     @Autowired
     TicketStatus ticketStatus;
+    @Autowired
+    PassengerRepository passengerRepository;
 
     private List<Ticket> nonPurchasedTicketList;
 
@@ -71,7 +75,6 @@ public class BookingSession {
     public void reloadBookingSession() {
         if (loginSession.isLoggedIn()) {
             Account account = loginSession.getAccount();
-            LocalDateTime thisMoment = thisMomentSession.getThisMoment();
 
             //nonPurchasedBooking reload
             List<Booking> nonPurchasedBookingList = bookingRepository.findNonPurchasedBookingsByAccountId(account.getId());
@@ -80,12 +83,12 @@ public class BookingSession {
                     Booking nonPurchasedBooking = nonPurchasedBookingList.get(0);
                     this.nonPurchasedBooking = nonPurchasedBooking;
                 } else {
-                    Booking nonPurchasedBooking = new Booking(thisMoment, false, account);
+                    Booking nonPurchasedBooking = new Booking(thisMoment(), false, account);
                     bookingRepository.save(nonPurchasedBooking);
                     this.nonPurchasedBooking = nonPurchasedBooking;
                 }
             } else {
-                Booking nonPurchasedBooking = new Booking(thisMoment, false, account);
+                Booking nonPurchasedBooking = new Booking(thisMoment(), false, account);
                 bookingRepository.save(nonPurchasedBooking);
                 this.nonPurchasedBooking = nonPurchasedBooking;
             }
@@ -103,14 +106,14 @@ public class BookingSession {
             }
 
             //purchasedTicketList reload
-            List<Ticket> purchasedTicketList = ticketRepository.findPurchasedTicketsByAccountId(account.getId());
+            List<Ticket> purchasedTicketList = ticketRepository.findPurchasedTicketsByAccountId(account.getId(), thisMoment());
             if (purchasedTicketList == null) {
                 purchasedTicketList = new ArrayList<>();
             }
             this.purchasedTickedList = purchasedTicketList;
 
             //flightedTicketList reload
-            List<Ticket> flightedTicketList = ticketRepository.findFlightedTicketsByAccountId(account.getId(), thisMoment);
+            List<Ticket> flightedTicketList = ticketRepository.findFlightedTicketsByAccountId(account.getId(), thisMoment());
             if (flightedTicketList == null) {
                 flightedTicketList = new ArrayList<>();
             }
@@ -264,13 +267,21 @@ public class BookingSession {
 
 
     //Separate Non-purchased Ticket In nonPurchasedTicketList To Map By flightId
-    public Map<Long, List<Ticket>> viewBookedTicketMap() {
+    public Map<Long, List<Ticket>> viewBookedTicketMap(int option) {
         reloadBookingSession();
         if (this.nonPurchasedTicketList.isEmpty()) {
             return new HashMap<>();
         }
+        List<Ticket> resolverList = new ArrayList<>();
+        if (option == 1) {
+            resolverList = findNonPassengerTicket(this.nonPurchasedTicketList);
+        } else if (option == 2) {
+            resolverList = findSettedPassengerTicket(this.nonPurchasedTicketList);
+        } else {
+            resolverList = this.nonPurchasedTicketList;
+        }
         Map<Long, List<Ticket>> ticketMap = new HashMap<>();
-        for (Ticket ticket : this.nonPurchasedTicketList) {
+        for (Ticket ticket : resolverList) {
             long flightId = ticket.getFlight().getId();
             if (!ticketMap.containsKey(flightId)) {
                 ticketMap.put(flightId, new ArrayList<>());
@@ -285,7 +296,7 @@ public class BookingSession {
         reloadBookingSession();
         if (loginSession.isLoggedIn()) {
             if (accountId == loginSession.getAccount().getId()) {
-                Map<Long, List<Ticket>> ticketListMap = viewBookedTicketMap();
+                Map<Long, List<Ticket>> ticketListMap = viewBookedTicketMap(0);
                 List<Ticket> ticketListWithFlightIdInCart = new ArrayList<>();
                 //All Ticket In nonPurchasedList Of This flightId
                 List<Long> ticketIdListWithFlightIdInCart = new ArrayList<>();
@@ -345,19 +356,27 @@ public class BookingSession {
         return this.flightedTicketList.size();
     }
 
-    public Page<List<Ticket>> viewBookedTicketListPage(Pageable pageable) {
-        Map<Long, List<Ticket>> ticketListMap = viewBookedTicketMap();
+    public Page<List<Ticket>> viewBookedTicketListPage(Pageable pageable, int option) {
+        Map<Long, List<Ticket>> ticketListMap = viewBookedTicketMap(option);
         return convertTicketListMapToPage(ticketListMap, pageable);
     }
 
     //Separate purchased ticket in list by flight id
-    public Map<Long, List<Ticket>> viewPurchasedTicketMap() {
+    public Map<Long, List<Ticket>> viewPurchasedTicketMap(int option) {
         reloadBookingSession();
         if (this.purchasedTickedList.isEmpty()) {
             return new HashMap<>();
         }
+        List<Ticket> resolverList = new ArrayList<>();
+        if (option == 1) {
+            resolverList = findNonPassengerTicket(this.purchasedTickedList);
+        } else if (option == 2) {
+            resolverList = findSettedPassengerTicket(this.purchasedTickedList);
+        } else {
+            resolverList = this.purchasedTickedList;
+        }
         Map<Long, List<Ticket>> ticketMap = new HashMap<>();
-        for (Ticket ticket : this.purchasedTickedList) {
+        for (Ticket ticket : resolverList) {
             long flightId = ticket.getFlight().getId();
             if (!ticketMap.containsKey(flightId)) {
                 ticketMap.put(flightId, new ArrayList<>());
@@ -368,14 +387,42 @@ public class BookingSession {
         return ticketMap;
     }
 
-    public Page<List<Ticket>> viewPurchasedTicketPage(Pageable pageable) {
-        Map<Long, List<Ticket>> ticketListMap = viewPurchasedTicketMap();
+    public Page<List<Ticket>> viewPurchasedTicketPage(Pageable pageable, int option) {
+        Map<Long, List<Ticket>> ticketListMap = viewPurchasedTicketMap(option);
         return convertTicketListMapToPage(ticketListMap, pageable);
     }
 
     //Convert
     public List<List<Ticket>> convertTicketListMapToListOfList(Map<Long, List<Ticket>> ticketListMap) {
         return new ArrayList<>(ticketListMap.values());
+    }
+
+    public List<Ticket> findNonPassengerTicket(List<Ticket> ticketList) {
+        List<Ticket> nonPassengerList = new ArrayList<>();
+        for (int i = 0; i < ticketList.size(); i++) {
+            Ticket ticket = ticketList.get(i);
+            if (ticket != null) {
+                Passenger passenger = passengerRepository.findPassengerByTicketId(ticket.getId());
+                if (passenger == null) {
+                    nonPassengerList.add(ticket);
+                }
+            }
+        }
+        return nonPassengerList;
+    }
+
+    public List<Ticket> findSettedPassengerTicket(List<Ticket> ticketList) {
+        List<Ticket> settedPassengerList = new ArrayList<>();
+        for (int i = 0; i < ticketList.size(); i++) {
+            Ticket ticket = ticketList.get(i);
+            if (ticket != null) {
+                Passenger passenger = passengerRepository.findPassengerByTicketId(ticket.getId());
+                if (passenger != null) {
+                    settedPassengerList.add(ticket);
+                }
+            }
+        }
+        return settedPassengerList;
     }
 
     public Page<List<Ticket>> convertTicketListMapToPage(Map<Long, List<Ticket>> ticketListMap, Pageable pageable) {
@@ -522,7 +569,7 @@ public class BookingSession {
     public String refundTicketResult(long ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId).get();
         try {
-            ticket = ticketService.refundTicket(ticket, 0.7);
+            ticket = ticketService.refundTicket(ticket, 1);
             return "Ticket Refunded, Check Your Bank Account";
         } catch (InvalidDataException e) {
             e.printStackTrace();
@@ -531,6 +578,25 @@ public class BookingSession {
             e.printStackTrace();
             return e.getMessage();
         }
+    }
+
+    public String refundAllTicketResult() {
+        List<Ticket> ticketList = this.purchasedTickedList;
+        BankAccount bankAccount = this.bankAccount;
+        for (int i = 0; i < ticketList.size(); i++) {
+            try {
+                Ticket ticket = ticketService.purchaseTicket(ticketList.get(i), bankAccount);
+            } catch (InvalidDataException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            } catch (InsufficientResourcesException e) {
+                e.printStackTrace();
+                return e.getMessage();
+            }
+        }
+        this.nonPurchasedBooking.setPurchased(true);
+        bookingRepository.save(this.nonPurchasedBooking);
+        return "All Tickets Purchased Successfully";
     }
 
     //************************** PASSENGER *********************************
@@ -594,5 +660,9 @@ public class BookingSession {
     public String unUsedPromotionTicketResult(long promotionTicketId) {
         PromotionTicket promotionTicket = promotionTicketRepository.findById(promotionTicketId).orElse(null);
         return unUsedPromotionTicketResult(promotionTicket);
+    }
+
+    public LocalDateTime thisMoment() {
+        return thisMomentSession.getThisMoment();
     }
 }

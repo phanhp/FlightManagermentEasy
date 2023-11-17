@@ -2,6 +2,7 @@ package com.example.FlightManagermentEasy.controller;
 
 import com.example.FlightManagermentEasy.dto.flight.FlightDTO;
 import com.example.FlightManagermentEasy.entity.Ticket;
+import com.example.FlightManagermentEasy.entity.flight.Flight;
 import com.example.FlightManagermentEasy.entity.flight.aircraft.Aircraft;
 import com.example.FlightManagermentEasy.entity.flight.aircraft.Cabin;
 import com.example.FlightManagermentEasy.entity.flight.aircraft.Seat;
@@ -173,25 +174,32 @@ public class UserBookingController {
                                     @RequestParam(value = "accountId", required = true) long accountId,
                                     HttpSession session) {
         List<Long> selectedTicketIdList = optionalSelectedTicketIdList.orElse(new ArrayList<>());
-        for (int i =0; i< selectedTicketIdList.size(); i++){
+        for (int i = 0; i < selectedTicketIdList.size(); i++) {
             System.out.println(selectedTicketIdList.get(i));
         }
         bookingSession.addListTicketToCartBySelectedId(selectedTicketIdList, flightId, accountId);
         return "redirect:/user/cart-page";
     }
 
-    //********************* CART ***********************
-    @GetMapping("/user/cart-page")
+    //********************* CART PAGE ***********************
+    @GetMapping({"/user/cart-page", "/user/cart-page/search"})
     public String userCartPage(Model model,
                                @RequestParam("page") Optional<Integer> page,
+                               @RequestParam(value = "ticketStatus", required = false) Optional<Integer> optionalTicketStatus,
                                HttpSession session) {
         Pageable pageable = PageRequest.of(page.orElse(0), 1);
+        int option = optionalTicketStatus.orElse(0);
+
         String ticketListPageTitle = "ticketListPage";
-        Page<List<Ticket>> ticketListPage = bookingSession.viewBookedTicketListPage(pageable);
+        Page<List<Ticket>> ticketListPage = bookingSession.viewBookedTicketListPage(pageable, option);
+
         String pageUrlTitle = "userCartPage";
         String pageUrl = "/user/cart-page";
 
-        commonModel.cartPageModel(model, session, page, ticketListPageTitle, ticketListPage, pageUrlTitle, pageUrl);
+        List<Integer> optionList = muf.createIntegerListFromNumberToNumber(0, 2);
+        model.addAttribute("optionList", optionList);
+
+        commonModel.cartPageModel(model, session, page, ticketListPageTitle, ticketListPage, pageUrlTitle, pageUrl, option);
         commonModel.headerModel(model);
         return "userViewCart";
     }
@@ -207,17 +215,19 @@ public class UserBookingController {
     }
 
     //********************* PURCHASED TICKETED PAGE ****************************
-    @GetMapping("/user/view-purchased-tickets-page")
+    @GetMapping({"/user/view-purchased-tickets-page", "/user/view-purchased-tickets-page/search"})
     public String userViewPurchasedTicketsPage(Model model,
                                                @RequestParam("page") Optional<Integer> page,
+                                               @RequestParam(value = "ticketStatus", required = false) Optional<Integer> optionalTicketStatus,
                                                HttpSession session) {
         Pageable pageable = PageRequest.of(page.orElse(0), 1);
+        int option = optionalTicketStatus.orElse(0);
         String ticketListPageTitle = "ticketListPage";
-        Page<List<Ticket>> ticketListPage = bookingSession.viewPurchasedTicketPage(pageable);
+        Page<List<Ticket>> ticketListPage = bookingSession.viewPurchasedTicketPage(pageable, option);
         String pageUrlTitle = "userPurchasedTicketPage";
         String pageUrl = "/user/view-purchased-tickets-page";
 
-        commonModel.cartPageModel(model, session, page, ticketListPageTitle, ticketListPage, pageUrlTitle, pageUrl);
+        commonModel.cartPageModel(model, session, page, ticketListPageTitle, ticketListPage, pageUrlTitle, pageUrl, option);
         commonModel.headerModel(model);
         return "userViewPurchasedTickets";
     }
@@ -367,20 +377,4 @@ public class UserBookingController {
         bookingSession.setBankAccount(bankAccount);
         return "redirect:/user/cart-page";
     }
-
-    //View All Purchased Ticket
-    @GetMapping("/user/view-purchased-ticket-page")
-    public String userViewPurchasedTicketPage(Model model,
-                                              HttpSession session) {
-        Map<Long, List<Ticket>> ticketListMap = bookingSession.viewPurchasedTicketMap();
-        model.addAttribute("ticketListMap", ticketListMap);
-        model.addAttribute("aircraftService", aircraftService);
-        model.addAttribute("flightService", flightService);
-        model.addAttribute("ticketService", ticketService);
-
-        commonModel.genderListModel(model);
-        commonModel.headerModel(model);
-        return "userViewPurchasedTickets";
-    }
-
 }

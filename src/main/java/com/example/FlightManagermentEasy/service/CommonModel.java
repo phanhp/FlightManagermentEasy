@@ -159,10 +159,11 @@ public class CommonModel {
         routeModel(model);
     }
 
+
     public void pageItemModel(Model model, HttpSession session, Optional<Integer> page,
-                                String pageItemTitle, Page<?> pageItem,
-                                String pageUrlTitle, String basePageUrl,
-                                String search) {
+                              String pageItemTitle, Page<?> pageItem,
+                              String pageUrlTitle, String basePageUrl,
+                              String search) {
         int totalPage = pageItem.getTotalPages();
         int currentPage = page.orElse(0);
         int firstPage = 0;
@@ -243,13 +244,12 @@ public class CommonModel {
     }
 
     //SignUp Model
-
     public void signupPageModel(HttpSession session,
-                                  Model model,
-                                  String signupAction,
-                                  String title,
-                                  String signUpPageUrl,
-                                  String submit) {
+                                Model model,
+                                String signupAction,
+                                String title,
+                                String signUpPageUrl,
+                                String submit) {
         model.addAttribute("signupAction", signupAction);
         model.addAttribute("title", title);
         model.addAttribute("signUpPageUrl", signUpPageUrl);
@@ -392,8 +392,8 @@ public class CommonModel {
     }
 
     public void cartPageModel(Model model, HttpSession session, Optional<Integer> page,
-                                String ticketListPageTitle, Page<List<Ticket>> ticketListPage,
-                                String cartPageUrlTitle, String cartPageUrl) {
+                              String ticketListPageTitle, Page<List<Ticket>> ticketListPage,
+                              String cartPageUrlTitle, String cartPageUrl, int option) {
         model.addAttribute("promotionTicketRepository", promotionTicketRepository);
         model.addAttribute("aircraftService", aircraftService);
         model.addAttribute("flightService", flightService);
@@ -404,16 +404,16 @@ public class CommonModel {
         model.addAttribute("paymentResult", paymentResult);
         session.setAttribute("paymentResult", "");
 
-        pageItemModel(model, session, page, ticketListPageTitle, ticketListPage, cartPageUrlTitle, cartPageUrl, "");
+        pageItemModel(model, session, page, ticketListPageTitle, ticketListPage, cartPageUrlTitle, cartPageUrl, String.valueOf(option));
     }
 
     //ViewFlight Model
     public void viewFlightPageModel(Model model, HttpSession session,
-                                      Optional<Long> departureCityIdOptional,
-                                      Optional<Long> arrivalCityIdOptional,
-                                      Optional<String> departureTimeOptional,
-                                      Optional<Integer> page, Pageable pageable,
-                                      String pageUrlTitle, String basePageUrl) {
+                                    Optional<Long> departureCityIdOptional,
+                                    Optional<Long> arrivalCityIdOptional,
+                                    Optional<String> departureTimeOptional,
+                                    Optional<Integer> page, Pageable pageable,
+                                    String pageUrlTitle, String basePageUrl) {
         long departureCityId = departureCityIdOptional.orElse(Long.valueOf(0));
         long arrivalCityId = arrivalCityIdOptional.orElse(Long.valueOf(0));
         String departureTimeString = departureTimeOptional.orElse("");
@@ -458,10 +458,10 @@ public class CommonModel {
     }
 
     public void updateProfile(HttpSession session,
-                                Model model,
-                                String profilePageUrl,
-                                String successUrl,
-                                String updateSuccess) {
+                              Model model,
+                              String profilePageUrl,
+                              String successUrl,
+                              String updateSuccess) {
         Account account = loginSession.getAccount();
         AccountDTO accountDTO = objectConverter.toAccountDTO(account);
         model.addAttribute("account", accountDTO);
@@ -483,10 +483,10 @@ public class CommonModel {
         model.addAttribute("successUrl", successUrl);
 
         String updateProfileResult = (String) session.getAttribute("updateProfileResult");
-        if(updateProfileResult!=null){
-            if (updateProfileResult.contains("Success")){
+        if (updateProfileResult != null) {
+            if (updateProfileResult.contains("Success")) {
                 model.addAttribute("updateSuccessMessage", updateProfileResult);
-            }else {
+            } else {
                 model.addAttribute("updateFailMessage", updateProfileResult);
             }
         }

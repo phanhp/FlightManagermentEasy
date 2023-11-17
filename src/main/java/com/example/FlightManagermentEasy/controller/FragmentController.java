@@ -75,6 +75,7 @@ public class FragmentController {
     @Autowired
     MUF muf;
 
+    //************************* BOOKING FRAGMENT ********************************
     @GetMapping("/userViewCart")
     public String userViewCart(Model model, Page<List<Ticket>> ticketListPage, List<Integer> integerList) {
         model.addAttribute("promotionTicketRepository", promotionTicketRepository);
@@ -113,6 +114,7 @@ public class FragmentController {
         return "userViewPurchasedTickets";
     }
 
+    //***************************************** FLIGHT MANAGER FRAGMENT ******************************
     @GetMapping("/managerCreateFlight")
     public String adminCreateFlight(Model model, HttpSession session,
                                     List<CountryDTO> countryDTOList, List<CityDTO> cityDTOList,
@@ -237,5 +239,26 @@ public class FragmentController {
 
         model.addAttribute("genderList", new ArrayList<>());
         return "userEditProfilePassword";
+    }
+
+    //****************************** SIGNUP FRAGMENT **************************************
+    @GetMapping("/signup")
+    public String signup(Model model){
+        model.addAttribute("title", "");
+        model.addAttribute("signupConfirmError", "");
+        model.addAttribute("signupAction", "");
+        model.addAttribute("signUpPageUrl", "");
+        model.addAttribute("profileImage", "");
+        model.addAttribute("profileImageError", "");
+        model.addAttribute("temporal", new AccountDTO());
+        model.addAttribute("accountNameError", "");
+        model.addAttribute("passwordError", "");
+        model.addAttribute("nameError", "");
+        model.addAttribute("emailError", "");
+        model.addAttribute("identityError", "");
+        model.addAttribute("CUAccountError", "");
+        model.addAttribute("genderList", new ArrayList<>());
+        model.addAttribute("submit", "");
+        return "flight-management/signup";
     }
 }

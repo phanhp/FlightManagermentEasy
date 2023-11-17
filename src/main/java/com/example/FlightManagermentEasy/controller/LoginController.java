@@ -139,7 +139,7 @@ public class LoginController {
         return "redirect:/";
     }
 
-    //User SignUP
+    //User Signup
     @GetMapping("/flight-management/user-signup-page")
     public String signupPage(Model model, HttpSession session) {
         String signUpAction = "/flight-management/user-signup";

@@ -6,10 +6,46 @@
     <link th:href="@{/css/boostrap.css}" rel="stylesheet" type="text/css"/>
     <link th:href="@{/css/userCartForm.css}" rel="stylesheet" type="text/css">
     <link th:href="@{/css/fragments.css}" rel="stylesheet" type="text/css">
+    <style>
+        .vtt{
+            float: left;
+        }
+        .action-form{
+            display: flex;
+            justify-content: left;
+            align-items: normal;
+        }
+    </style>
 </head>
 <body>
 <header class="header" th:replace="flight-management/fragments :: header"></header>
 <div class="container">
+    <div class="p-option">
+        <form th:action="@{/user/view-purchased-tickets-page/search}" class="row">
+            <div class="col-lg-2 p-label">
+                <label class="label-title" for="ticketStatus">Option</label>
+            </div>
+            <select class="form-control col-lg-6 p-select"
+                    id="ticketStatus"
+                    name="ticketStatus">
+                <option class="auto-option"
+                        th:value="2"
+                        selected>View Set Passenger Tickets
+                </option>
+                <option class="auto-option"
+                        th:value="1"
+                        selected>View Non Passenger Tickets
+                </option>
+                <option class="auto-option"
+                        th:value="0"
+                        selected>View All Tickets In Cart
+                </option>
+            </select>
+            <div class="col-lg-3 p-submit-box">
+                <button type="submit" class="p-btn">Confirm Select</button>
+            </div>
+        </form>
+    </div>
     <div th:each="ticketListEntry : ${ticketListPage}">
         <div class="card">
             <div th:with="flightId=${bookingSession.getFlightIdFromTicketList(ticketListEntry)}">
@@ -60,6 +96,13 @@
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="action-form row">
+                    <form th:action="@{'/user/booking-ticket-page/'+${flightId}}" method="get" class="col-lg-6 vtt">
+                        <div class="support-form-btn">
+                            <button class="support-btn" type="submit">View Flight Page</button>
+                        </div>
+                    </form>
                 </div>
                 <div th:text="${paymentResult}" class="message"></div>
                 <div th:with="ticketList=${ticketListEntry}">
